@@ -1,0 +1,460 @@
+:root {
+  --primary-blue: #4962BF;
+  --black: #000000;
+  --white: #FFFFFF;
+  --light-gray: #F5F5F5;
+  --medium-gray: #E0E0E0;
+  --dark-gray: #666666;
+  --error-red: #ff4444;
+  --success-green: #4962BF;
+}
+
+.survey-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: var(--white);
+  padding: 20px;
+}
+
+.survey-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.survey-container button,
+.survey-container input,
+.survey-container select,
+.survey-container textarea {
+  font-family: inherit;
+}
+
+/* Progress bar with percentage */
+.progress-container {
+  position: relative;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--medium-gray);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: var(--primary-blue);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.progress-percentage {
+  position: absolute;
+  right: 0;
+  top: -25px;
+  font-size: 1rem;
+  color: var(--dark-gray);
+  font-weight: 600;
+}
+
+/* Section header */
+.section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4962bf;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Questions */
+.section-questions {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.question-card {
+  background: var(--white);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--medium-gray);
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.question-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.question-header {
+  margin-bottom: 1.5rem;
+}
+
+.question-header h3 {
+  font-size: 1.1rem;
+  font-weight: 550;
+  color: var(--black);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.required-indicator {
+  color: var(--error-red);
+  margin-left: 0.25rem;
+}
+
+/* Form inputs */
+.answer-input {
+  width: 90%;
+  padding: 0.875rem;
+  border: 1.5px solid var(--medium-gray);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: var(--black);
+  background: var(--white);
+  transition: all 0.2s ease;
+}
+
+.answer-input:focus {
+  outline: none;
+  border-color: var(--black);
+  border-width: 2px;
+}
+
+.answer-input::placeholder {
+  color: var(--dark-gray);
+  opacity: 0.6;
+}
+
+/* Checkbox group */
+.checkbox-group-survey {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color:black;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.checkbox-label:hover {
+  background-color: var(--light-gray);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* File upload */
+.file-upload {
+  margin-top: 0.5rem;
+}
+
+.file-upload input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px dashed var(--medium-gray);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.file-upload input[type="file"]:hover {
+  border-color: var(--dark-gray);
+}
+
+.file-preview {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: var(--light-gray);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--black);
+}
+
+/* Navigation buttons */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 1rem;
+}
+
+.nav-button {
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+  text-align: center;
+}
+
+.nav-button.primary {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(73, 98, 191, 0.2);
+}
+
+.nav-button:not(.primary) {
+  background-color: var(--light-gray);
+  color: var(--black);
+}
+
+.nav-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(73, 98, 191, 0.2);
+}
+
+.nav-button:active {
+  transform: translateY(0);
+}
+
+/* Summary view */
+.summary-section {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--medium-gray);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.summary-section h3 {
+  font-size: 1.5rem;
+  color: var(--black);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--light-gray);
+}
+
+.summary-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.summary-item h4 {
+  font-size: 1.1rem;
+  color: var(--black);
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.summary-item p {
+  font-size: 1.1rem;
+  color: var(--black);
+}
+
+/* Invalid field styling */
+.invalid-field {
+  border-color: var(--error-red) !important;
+  background-color: rgba(255, 68, 68, 0.05);
+}
+
+.question-invalid {
+  border-left: 3px solid var(--error-red);
+  border-color: var(--error-red);
+  box-shadow: 0 2px 8px rgba(255, 68, 68, 0.2);
+  animation: shake 0.4s ease-in-out;
+}
+
+.validation-error {
+  color: var(--error-red);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.validation-message {
+  color: var(--error-red);
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+  font-weight: 400;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+/* Focused invalid field */
+.invalid-field:focus {
+  outline: none;
+  border-color: var(--error-red) !important;
+  box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.2);
+}
+
+/* States */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  font-size: 1.2rem;
+  color: var(--dark-gray);
+}
+
+.error-message {
+  background-color: rgba(255, 68, 68, 0.1);
+  color: var(--error-red);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--error-red);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .survey-container {
+    width: 100%;
+    padding: 1.5rem;
+    margin: 0;
+    border-radius: 12px;
+  }
+
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .question-card {
+    padding: 1.25rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem 1rem;
+  }
+
+  .nav-button {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+/* Inline Summary Container */
+.summary-container {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px dashed var(--medium-gray);
+}
+
+.summary-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Disabled button state */
+.nav-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading indicator for submission */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.nav-button:disabled {
+  animation: pulse 1.5s infinite;
+}
+
+/* Smooth transition for review mode */
+.summary-container {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal overlay for confirmation */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content.error {
+  border-left: 4px solid #dc3545;
+}
+
+.modal-content.error h2 {
+  color: #dc3545;
+}
+
+.modal-content .button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}

@@ -1,0 +1,327 @@
+.demo-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+body {
+  background-color: #dad4d3;
+}
+
+.password-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f7;
+}
+
+.password-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.password-form input {
+  width: 100%;
+  padding: 12px;
+  margin: 1rem 0;
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.video-selector {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  margin-top: 70px;
+}
+
+.video-button, 
+.player-controls button,
+.chapter-button {
+  background: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.video-button.active,
+.player-controls button.active,
+.chapter-button.active {
+  border: 1px solid rgba(0, 0, 0, 0.641);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Container for the frame and video */
+.player-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #dad4d3;
+  cursor: pointer; /* Show it's clickable */
+}
+
+/* The actual video container */
+.player-container {
+  position: relative;
+}
+
+/* Frame overlay - using separate elements instead of border */
+.frame-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: #dad4d3;
+  z-index: 2;
+}
+
+.frame-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: #dad4d3;
+  z-index: 2;
+}
+
+.frame-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 30px;
+  background: #dad4d3;
+  z-index: 2;
+}
+
+.frame-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  background: #dad4d3;
+  z-index: 2;
+}
+
+.player-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30vh;
+}
+
+.player-controls button {
+  min-width: 80px;  /* Ensure consistent button sizes */
+  text-align: center;
+}
+
+.chapters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;  /* Space between chapters and progress bar */
+  margin-top: 16px;    /* Space between video and chapters */
+}
+
+.chapter-button {
+  background: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background: #e5e5e7;
+}
+
+.video-button:hover,
+.player-controls button:hover,
+.chapter-button:hover {
+  background: white;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Add active state to play/pause button when playing */
+.player-controls button.playing {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+  color: #ff3b30;
+  margin-bottom: 1rem;
+  font-size: 14px;
+}
+
+.password-form button {
+  background-color: #000000;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.password-form button:hover {
+  background-color: #333333;
+}
+
+.progress-bar {
+  width: 100%;
+  max-width: 1000px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  margin: 0 auto 16px;
+  cursor: pointer;
+  border-radius: 2px;
+  position: relative;
+}
+
+.progress-bar:hover {
+  height: 6px;
+}
+
+.progress-bar-filled {
+  background: white;
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(218, 212, 211, 0.9);  /* Slightly transparent grey */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+}
+
+.loader {
+  border: 3px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 3px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Hide mobile controls on desktop */
+.mobile-control {
+  display: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .demo-container {
+    margin: 10px auto;
+    padding: 0 10px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Center video selector with more space */
+  .video-selector {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: auto 0 32px;  /* This will center it vertically in the space above video */
+    padding-top: 32px;    /* Add some top padding */
+  }
+
+  .video-button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  /* Keep all controls visible on mobile */
+  .desktop-control {
+    display: block;  /* Show all controls */
+    padding: 10px 16px;  /* Slightly smaller padding */
+    font-size: 13px;    /* Slightly smaller font */
+  }
+
+  /* Adjust player controls layout */
+  .player-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  /* Make fullscreen button more prominent */
+  .mobile-control {
+    display: block;
+    background: white;
+    padding: 10px 16px;
+    font-size: 13px;
+    margin-left: 8px;
+  }
+}
+
+/* iPad specific adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .demo-container {
+    margin: 15px auto;
+  }
+
+  .video-button {
+    padding: 10px 20px;
+    font-size: 15px;
+  }
+
+  .chapter-button {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+}
+
+/* Fullscreen styles */
+.player-wrapper:fullscreen {
+  background: black;
+  padding: 0;
+}
+
+.player-wrapper:fullscreen .frame-top,
+.player-wrapper:fullscreen .frame-bottom,
+.player-wrapper:fullscreen .frame-left,
+.player-wrapper:fullscreen .frame-right {
+  display: none;
+}

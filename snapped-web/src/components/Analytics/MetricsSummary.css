@@ -1,0 +1,38 @@
+.metrics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.metric-info h3 {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.metric-info p {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 5px 0 0 0;
+} 

@@ -1,0 +1,243 @@
+/* Employee Selector Component - Specific Namespacing */
+.lead-tracker-view .employee-selector {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.lead-tracker-view .employee-selector .selector-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.lead-tracker-view .employee-selector .selector-header .selector-icon {
+  color: #4285f4;
+  font-size: 16px;
+}
+
+.lead-tracker-view .employee-selector .selector-header .selector-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown {
+  position: relative;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .selector-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .selector-input:hover {
+  border-color: #d1d5db;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .selector-input:focus-within {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .selector-input .selected-employee {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .selector-input .selected-employee.placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .selector-input .dropdown-icon {
+  color: #6b7280;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 400px;
+  overflow: hidden;
+  margin-top: 4px;
+  animation: employeeSelectorSlideDown 0.2s ease-out;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .search-box {
+  position: relative;
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .search-box .search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .search-box input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .search-box input:focus {
+  border-color: #4285f4;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item:hover {
+  background-color: #f9fafb;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item.selected {
+  background-color: #eff6ff;
+  border-left: 3px solid #4285f4;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item:last-child {
+  border-bottom: none;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item .employee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item .employee-info .employee-name {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item .employee-info .employee-details {
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item .employee-info .employee-details .employee-id {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item .employee-info .employee-details .employee-department,
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .employee-item .employee-info .employee-details .employee-rate {
+  font-size: 12px;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .loading-item,
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .error-item,
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .no-results {
+  padding: 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list .error-item {
+  color: #dc2626;
+}
+
+.lead-tracker-view .employee-selector .selected-employee-info {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.lead-tracker-view .employee-selector .selected-employee-info .info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lead-tracker-view .employee-selector .selected-employee-info .info-row .info-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.lead-tracker-view .employee-selector .selected-employee-info .info-row .info-value {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 400;
+}
+
+/* Animation keyframes with specific naming */
+@keyframes employeeSelectorSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design with specific selectors */
+@media (max-width: 768px) {
+  .lead-tracker-view .employee-selector .selected-employee-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .lead-tracker-view .employee-selector {
+    padding: 16px;
+  }
+  
+  .lead-tracker-view .employee-selector .selector-dropdown .dropdown-content {
+    max-height: 300px;
+  }
+  
+  .lead-tracker-view .employee-selector .selector-dropdown .dropdown-content .employee-list {
+    max-height: 200px;
+  }
+} 

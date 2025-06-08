@@ -1,0 +1,55 @@
+.settings-container {
+  position: relative;
+  display: inline-block;
+}
+
+.settings-button {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  min-width: 150px;
+}
+
+.settings-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Explicitly disable any hover effects */
+.settings-item:hover {
+  background-color: transparent;
+}
+
+.settings-button:hover {
+  background-color: transparent;
+}
+
+/* Remove any transitions */
+.settings-item, .settings-button {
+  transition: none;
+}
+
+.settings-icon {
+  font-size: 16px;
+}
+
+.item-icon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+} 

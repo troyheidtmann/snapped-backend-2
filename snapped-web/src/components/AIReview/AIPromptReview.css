@@ -1,0 +1,459 @@
+.videoSummaryReviewContainer_SummaryReview {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #f8f9fa;
+}
+
+.videoSummaryReviewCard_SummaryReview {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin-bottom: 24px;
+  min-height: 700px;
+}
+
+.videoSummaryReviewContent_SummaryReview {
+  flex: 1;
+}
+
+.videoSummaryReviewHeader_SummaryReview {
+  margin-bottom: 20px;
+}
+
+.videoSummaryReviewHeader_SummaryReview h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.videoSummaryReviewClientId_SummaryReview {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.videoSummaryReviewVideoContainer_SummaryReview {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoSummaryReviewVideoContainer_SummaryReview video {
+  width: auto;
+  height: 600px;
+  max-height: 80vh;
+  display: block;
+  background: #000;
+  aspect-ratio: 9/16;
+}
+
+.videoSummaryReviewSummarySection_SummaryReview {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.videoSummaryReviewSummarySection_SummaryReview h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.videoSummaryReviewRatingGroup_SummaryReview {
+  margin-bottom: 20px;
+}
+
+.videoSummaryReviewRatingRow_SummaryReview {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.videoSummaryReviewRatingLabel_SummaryReview {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+.videoSummaryReviewRatingSelect_SummaryReview {
+  width: 120px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  color: #333;
+}
+
+.videoSummaryReviewFeedbackTextarea_SummaryReview {
+  width: 97%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  margin-bottom: 16px;
+}
+
+.videoSummaryReviewSaveButton_SummaryReview {
+  background: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.videoSummaryReviewSaveButton_SummaryReview:hover {
+  background: #096dd9;
+}
+
+.videoSummaryReviewSaveButton_SummaryReview:disabled {
+  background: #bfbfbf;
+  cursor: not-allowed;
+}
+
+/* Theme styling */
+.videoSummaryReviewThemeText_SummaryReview {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.videoSummaryReviewBulletPoints_SummaryReview {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+  color: black;
+}
+
+.videoSummaryReviewBulletPoints_SummaryReview li {
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.videoSummaryReviewBulletPoints_SummaryReview li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #333;
+}
+
+.videoSummaryReviewOverviewText_SummaryReview {
+  font-style: italic;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.videoSummaryReviewImprovementText_SummaryReview {
+  color: #f5222d;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.videoSummaryReviewSimilarIdeas_SummaryReview {
+  color: #52c41a;
+  margin-bottom: 16px;
+}
+
+.videoSummaryReviewEnvironmentText_SummaryReview {
+  color: #722ed1;
+  font-weight: 500;
+}
+
+/* Header card specific */
+.videoSummaryReviewHeaderCard_SummaryReview {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Current Prompt Section */
+.videoSummaryReviewCurrentPromptSection_SummaryReview {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.videoSummaryReviewPromptEditorHeader_SummaryReview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.videoSummaryReviewPromptEditorHeader_SummaryReview h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.videoSummaryReviewPromptVersion_SummaryReview {
+  font-size: 14px;
+  color: #666;
+  background: #f0f0f0;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+
+.videoSummaryReviewPromptText_SummaryReview {
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  white-space: pre-wrap !important;
+  background: #f8f9fa !important;
+  padding: 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  font-family: monospace !important;
+  color: #333 !important;
+  margin: 0 !important;
+  font-weight: normal !important;
+  text-align: left !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  overflow-x: auto !important;
+  max-width: 100% !important;
+}
+
+.videoSummaryReviewPromptText_SummaryReview * {
+  font-family: monospace !important;
+  color: #333 !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  font-weight: normal !important;
+}
+
+/* Modal close button */
+.videoSummaryReviewModalCloseButton_SummaryReview {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.videoSummaryReviewModalCloseButton_SummaryReview:hover {
+  color: #333;
+}
+
+/* Header buttons */
+.videoSummaryReviewHeaderButtons_SummaryReview {
+  display: flex;
+  gap: 12px;
+}
+
+.videoSummaryReviewGenerateButton_SummaryReview {
+  background: #52c41a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.videoSummaryReviewGenerateButton_SummaryReview:hover {
+  background: #389e0d;
+}
+
+.videoSummaryReviewGenerateButton_SummaryReview:disabled {
+  background: #bfbfbf;
+  cursor: not-allowed;
+}
+
+/* Modal styles */
+.videoSummaryReviewModalOverlay_SummaryReview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.videoSummaryReviewModalContent_SummaryReview {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.videoSummaryReviewModalContent_SummaryReview h3 {
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: black;
+}
+
+.videoSummaryReviewPromptNavigation_SummaryReview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.videoSummaryReviewPromptNavigation_SummaryReview button {
+  background: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.videoSummaryReviewPromptNavigation_SummaryReview button:hover {
+  background: #e0e0e0;
+}
+
+.videoSummaryReviewPromptNavigation_SummaryReview button:disabled {
+  background: #f0f0f0;
+  color: #bfbfbf;
+  cursor: not-allowed;
+}
+
+.videoSummaryReviewPromptPreview_SummaryReview {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.videoSummaryReviewPromptPreview_SummaryReview h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.videoSummaryReviewPromptExplanation_SummaryReview {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.videoSummaryReviewPromptTextPreview_SummaryReview {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  color: black;
+}
+
+.videoSummaryReviewModalActions_SummaryReview {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.videoSummaryReviewCancelButton_SummaryReview {
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.videoSummaryReviewCancelButton_SummaryReview:hover {
+  background: #e0e0e0;
+}
+
+.videoSummaryReviewPromptControls_SummaryReview {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.videoSummaryReviewPromptControls_SummaryReview p {
+  margin-bottom: 24px;
+  color: #666;
+  font-size: 16px;
+}
+
+.videoSummaryReviewSuggestionGrid_SummaryReview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.videoSummaryReviewSuggestionCard_SummaryReview {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.videoSummaryReviewSuggestionCard_SummaryReview:hover {
+  border-color: #1890ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+}
+
+.videoSummaryReviewSuggestionCard_SummaryReview.selected {
+  border-color: #1890ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  background: #e6f7ff;
+}
+
+.videoSummaryReviewSuggestionCard_SummaryReview h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}

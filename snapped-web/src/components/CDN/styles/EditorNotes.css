@@ -1,0 +1,85 @@
+/* Container styles */
+.cdn-notes-container {
+  height: 13vh;
+  width: 100%;
+}
+
+/* Notes list */
+.cdn-notes-list {
+  padding: 8px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-content: flex-start;
+}
+
+/* Individual note items */
+.cdn-note-item {
+  width: 45%;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 8px;
+  margin: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cdn-note-item:hover {
+  background: #252525;
+  border-color: #444;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.cdn-note-text {
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* View Media button */
+.cdn-note-media-button {
+  background: #374151;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  align-self: flex-start;
+}
+
+.cdn-note-media-button:hover {
+  background: #4b5563;
+}
+
+/* Loading and empty states */
+.cdn-notes-loading,
+.cdn-notes-empty {
+  color: #666;
+  font-size: 13px;
+  padding: 8px;
+}
+
+/* Scrollbar */
+.cdn-notes-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cdn-notes-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cdn-notes-list::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
+}
+
+.cdn-notes-list::-webkit-scrollbar-thumb:hover {
+  background: #444;
+} 

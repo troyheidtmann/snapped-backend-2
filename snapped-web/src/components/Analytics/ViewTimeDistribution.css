@@ -1,0 +1,46 @@
+.chart-container {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container h3 {
+  margin: 0 0 1.5rem 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+}
+
+.recharts-pie-label-text {
+  font-size: 12px;
+  fill: #4b5563;
+}
+
+.recharts-legend-item-text {
+  color: #1e293b !important;
+}
+
+.metrics-summary {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.metric-item {
+  text-align: center;
+}
+
+.metric-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 600;
+} 

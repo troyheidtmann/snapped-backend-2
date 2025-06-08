@@ -1,0 +1,117 @@
+.bm-support-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: #333;
+}
+
+.bm-support-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #1a1a1a;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.bm-support-intro {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.bm-support-intro p {
+  margin-bottom: 1rem;
+}
+
+.bm-support-content {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bm-support-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.bm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bm-form-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.bm-form-group input,
+.bm-form-group textarea {
+  padding: 1rem;
+  border: 2px solid #e1e1e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.bm-form-group input:focus,
+.bm-form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.bm-form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.bm-support-button {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bm-support-button:hover {
+  background-color: #333;
+}
+
+.bm-support-button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.bm-support-success {
+  color: #155724;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #d4edda;
+  border-radius: 8px;
+  border: 1px solid #c3e6cb;
+}
+
+.bm-support-error {
+  color: #721c24;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8d7da;
+  border-radius: 8px;
+  border: 1px solid #f5c6cb;
+}
+
+.bm-form-group input::placeholder,
+.bm-form-group textarea::placeholder {
+  color: #999;
+  opacity: 0.8;
+} 

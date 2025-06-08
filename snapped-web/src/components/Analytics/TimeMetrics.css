@@ -1,0 +1,64 @@
+.chart-container {
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  height: 100%;
+}
+
+.chart-container h3 {
+  color: #1e293b;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.recharts-radar {
+  transition: opacity 0.2s;
+}
+
+.recharts-radar:hover {
+  opacity: 0.8;
+}
+
+.time-metrics {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.time-metrics h3 {
+  margin: 0 0 1.5rem 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.metric-item {
+  text-align: center;
+  padding: 1rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+
+.metric-item:hover {
+  transform: translateY(-2px);
+}
+
+.time-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #3b82f6;
+  margin-bottom: 0.5rem;
+}
+
+.time-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+} 

@@ -1,0 +1,49 @@
+.client-selector {
+  position: relative;
+  min-width: 200px;
+}
+
+.client-select {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.client-select:hover {
+  border-color: var(--primary-color);
+}
+
+.client-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.client-selector::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--text-secondary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.client-select option {
+  padding: 8px;
+  font-size: 0.875rem;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+} 

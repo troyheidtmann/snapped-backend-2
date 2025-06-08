@@ -1,0 +1,267 @@
+.task-manager {
+  padding: 32px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  margin: 24px;
+}
+
+.task-manager__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.task-manager__header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.task-manager__add-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4CAF50 0%, #43A047 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.task-manager__add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.25);
+}
+
+.task-manager__add-button:active {
+  transform: translateY(0);
+}
+
+.task-manager__tabs {
+  margin-bottom: 32px;
+  display: flex;
+  gap: 12px;
+}
+
+.task-manager__tabs .tab {
+  padding: 10px 20px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.task-manager__tabs .tab:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #4b5563;
+}
+
+.task-manager__tabs .tab.active {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.task-grid table {
+  width: 93%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.task-grid th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.task-grid td {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.task-grid tr:last-child td {
+  border-bottom: none;
+}
+
+.task-grid tr:hover {
+  background-color: #f8fafc;
+}
+
+.priority-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.priority-badge.high {
+  background-color: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.priority-badge.medium {
+  background-color: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.priority-badge.low {
+  background-color: #D1FAE5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.assignee-tag {
+  display: inline-flex;
+  padding: 4px 12px;
+  background-color: #EFF6FF;
+  color: #2563EB;
+  border-radius: 20px;
+  margin: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #BFDBFE;
+  align-items: center;
+  gap: 6px;
+}
+
+.task-grid td button {
+  padding: 6px 12px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.task-grid td:last-child {
+  white-space: nowrap;
+  width: 1%;
+}
+
+.task-grid td button:first-child {
+  background: #2196F3;
+  color: white;
+}
+
+.task-grid td button:first-child:hover {
+  background: #1976D2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.task-grid td button:last-child {
+  background: #FF5252;
+  color: white;
+}
+
+.task-grid td button:last-child:hover {
+  background: #D32F2F;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 82, 82, 0.2);
+}
+
+.task-grid td button.icon-button {
+  padding: 6px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  color: #64748b;
+}
+
+.task-grid td button.icon-button:hover {
+  transform: translateY(-1px);
+}
+
+.task-grid td button.icon-button.edit:hover {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.task-grid td button.icon-button.delete:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.status-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.status-icon.completed {
+  color: #22c55e;
+}
+
+.status-icon.active {
+  color: #3b82f6;
+}
+
+.status-icon.hold {
+  color: #64748b;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Make sure the actions column doesn't wrap */
+.task-grid th:last-child,
+.task-grid td:last-child {
+  text-align: right;
+  padding-right: 24px;
+  width: 100px;
+} 

@@ -1,0 +1,160 @@
+.split-assignment-container {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(73, 98, 191, 0.08);
+}
+
+.split-assignment-container h1 {
+  color: #4962BF;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.payout-select {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 32px;
+}
+
+.controls-section {
+  margin-bottom: 32px;
+}
+
+.splits-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(73, 98, 191, 0.1);
+}
+
+.splits-header h2 {
+  color: #4962BF;
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.splits-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.splits-actions button {
+  border-radius: 6px;
+  height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.splits-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(73, 98, 191, 0.15);
+}
+
+/* Table Styles */
+.MuiTableContainer-root {
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(73, 98, 191, 0.08) !important;
+}
+
+.MuiTableHead-root .MuiTableCell-root {
+  background: rgba(73, 98, 191, 0.05) !important;
+  color: #4962BF !important;
+  font-weight: 500 !important;
+}
+
+.MuiTableBody-root .MuiTableCell-root {
+  border-bottom: 1px solid rgba(73, 98, 191, 0.08);
+}
+
+.MuiTableRow-root:hover .MuiTableCell-root {
+  background: rgba(73, 98, 191, 0.02);
+}
+
+/* Dialog Styles */
+.MuiDialog-paper {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.MuiDialogTitle-root {
+  background: #4962BF !important;
+  color: white !important;
+  padding: 16px 24px !important;
+}
+
+.MuiDialogContent-root {
+  padding: 24px !important;
+}
+
+/* Select Styles */
+.MuiSelect-select {
+  border-radius: 6px !important;
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #4962BF !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #4962BF !important;
+  box-shadow: 0 0 0 2px rgba(73, 98, 191, 0.2);
+}
+
+/* Button Styles */
+.MuiButton-containedPrimary {
+  background-color: #4962BF !important;
+}
+
+.MuiButton-containedPrimary:hover {
+  background-color: #3d53a8 !important;
+}
+
+.MuiButton-outlined {
+  color: #4962BF !important;
+  border-color: #4962BF !important;
+}
+
+.MuiButton-outlined:hover {
+  background-color: rgba(73, 98, 191, 0.04) !important;
+}
+
+/* Alert Styles */
+.MuiAlert-root {
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(73, 98, 191, 0.15) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .split-assignment-container {
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .controls-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .controls-section .MuiButton-root {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .split-assignment-container {
+    padding: 16px;
+  }
+} 

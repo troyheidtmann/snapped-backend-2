@@ -1,0 +1,228 @@
+/* Contract Button Styles */
+.snapped-contract-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 2px;
+  transition: all 0.2s ease;
+  position: relative;
+  background: transparent;
+}
+
+/* Status-based styles */
+.snapped-contract-btn--signed {
+  box-shadow: 0 0 1px rgba(76, 175, 80, 0.6);
+}
+
+.snapped-contract-btn--pending {
+  box-shadow: 0 0 1px rgba(255, 193, 7, 0.6);
+}
+
+.snapped-contract-btn--default {
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.snapped-contract-btn__icon {
+  font-size: 0.85em;
+}
+
+/* Contract Modal Styles */
+.snapped-contract-modal {
+  position: relative;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+}
+
+.snapped-contract-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.snapped-contract-modal__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.snapped-contract-modal__status {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.snapped-contract-modal__editor {
+  margin-bottom: 24px;
+}
+
+.snapped-contract-modal__textarea {
+  width: 95%;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 400px;
+  color: #000000;
+}
+
+.snapped-contract-modal__textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.snapped-contract-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.snapped-contract-modal__btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.snapped-contract-modal__btn--save {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.snapped-contract-modal__btn--send {
+  background: #3b82f6;
+  border: 1px solid #3b82f6;
+  color: white;
+}
+
+.snapped-contract-modal__btn:hover {
+  transform: translateY(-1px);
+}
+
+.snapped-contract-modal__btn--save:hover {
+  background: #e5e7eb;
+}
+
+.snapped-contract-modal__btn--send:hover {
+  background: #2563eb;
+}
+
+.signature-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.signature-pad {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 500px;
+  height: 200px;
+  background: white;
+}
+
+.signature-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.snapped-contract-modal__version-select {
+  margin-left: auto;
+  margin-right: 16px;
+}
+
+.snapped-contract-modal__select {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #374151;
+  background-color: white;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.snapped-contract-modal__select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.snapped-contract-modal__select option {
+  padding: 8px;
+}
+
+.name-input-container {
+  width: 100%;
+  max-width: 500px;  /* Match signature pad width */
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.name-input-container label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.representative-name-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  transition: all 0.2s ease;
+}
+
+.representative-name-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.representative-name-input::placeholder {
+  color: #9ca3af;
+}
+
+.snapped-contract-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+  backdrop-filter: blur(5px);
+}

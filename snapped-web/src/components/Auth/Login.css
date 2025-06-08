@@ -1,0 +1,204 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.login-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  transition: all 0.3s ease;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.login-page input,
+.login-box input {
+  width: 95%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #333;
+  background-color: white;
+}
+
+.login-page input:focus,
+.login-box input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.login-page input[type="date"],
+.login-box input[type="date"] {
+  color: #666;
+}
+
+.login-page input[type="date"]::-webkit-calendar-picker-indicator,
+.login-box input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+.login-page input[type="date"]:invalid::-webkit-datetime-edit,
+.login-box input[type="date"]:invalid::-webkit-datetime-edit {
+  color: #999;
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.login-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.switch-auth-button {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.switch-auth-button:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #dc3545;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+/* Add password requirements styling */
+.password-requirements {
+  color: #dc3545;
+  font-size: 0.85em;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+/* Search Styles */
+.search-section {
+  margin: 15px 0;
+  position: relative;
+}
+
+.search-input {
+  margin-bottom: 0;  /* Override default input margin */
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 5px);  /* Add small gap between input and results */
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-result-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  color: #333;
+  background-color: white;
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: #f8f9fa;
+}
+
+.search-result-item:not(:last-child) {
+  border-bottom: 1px solid #eee;
+}
+
+.selected-item {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remove-selection {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+.remove-selection:hover {
+  color: #bd2130;
+}
+
+/* Remove any existing spinner styles if not needed */
+.search-spinner {
+  display: none;
+}
+
+.confirmation-help {
+  text-align: center;
+  color: #666;
+  font-size: 0.9em;
+  margin-top: 15px;
+}
+
+.forgot-password-button {
+  background: none;
+  border: none;
+  color: #0066cc;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.forgot-password-button:hover {
+  color: #004999;
+} 

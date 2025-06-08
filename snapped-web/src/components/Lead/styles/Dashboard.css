@@ -1,0 +1,263 @@
+/* All styles scoped under lead-tracker-view to prevent conflicts */
+.lead-tracker-view {
+  all: initial; /* Reset all properties */
+  display: block; /* Restore display property */
+  
+  /* Set our own background */
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%) !important;
+  min-height: 100vh;
+  padding: 24px;
+  color: rgba(0, 0, 0, 0.87) !important; /* Set default text color to black */
+  position: relative; /* Create new stacking context */
+  z-index: 10000; /* Set higher than navigation bar */
+}
+
+/* Restore specific backgrounds we want */
+body .lead-tracker-view .MuiCard-root,
+body .lead-tracker-view .MuiTableContainer-root,
+body .lead-tracker-view .MuiInputBase-root,
+body .lead-tracker-view .MuiPaper-root {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(0, 0, 0, 0.87) !important; /* Set text color to black */
+}
+
+/* Typography styles */
+.lead-tracker-view .MuiTypography-root {
+  color: rgba(0, 0, 0, 0.87) !important; /* Set all Typography components to black */
+}
+
+/* Table text colors */
+.lead-tracker-view .MuiTableCell-root {
+  color: rgba(0, 0, 0, 0.87) !important; /* Set table cell text to black */
+}
+
+/* Input text colors */
+.lead-tracker-view .MuiInputBase-input {
+  color: rgba(0, 0, 0, 0.87) !important; /* Set input text to black */
+}
+
+.lead-tracker-view .MuiInputLabel-root {
+  color: rgba(0, 0, 0, 0.6) !important; /* Slightly lighter for labels */
+}
+
+/* Add specific styles for the search field */
+.dashboard-search-field {
+  margin: 0 !important;
+}
+
+.dashboard-search-field .MuiInputBase-root {
+  height: 40px !important;
+}
+
+.dashboard-search-field .MuiInputBase-input {
+  text-align: left !important;
+  padding: 8px 14px !important;
+}
+
+.dashboard-search-field .MuiInputLabel-root {
+  text-align: left !important;
+  width: auto !important;
+  transform: translate(14px, 8px) scale(1) !important;
+}
+
+.dashboard-search-field .MuiInputLabel-shrink {
+  transform: translate(14px, -8px) scale(0.75) !important;
+}
+
+/* Card customization */
+.lead-tracker-view .MuiCard-root {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+
+.lead-tracker-view .MuiCard-root:hover {
+  transform: translateY(-2px);
+}
+
+/* Table customization */
+.lead-tracker-view .MuiTableContainer-root {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  max-height: 250px !important;
+  overflow-y: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+.lead-tracker-view .MuiTableContainer-root table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.lead-tracker-view .MuiTableContainer-root thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Scrollbar styling for the table container */
+.lead-tracker-view .MuiTableContainer-root::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lead-tracker-view .MuiTableContainer-root::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.lead-tracker-view .MuiTableContainer-root::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.lead-tracker-view .MuiTableContainer-root::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.lead-tracker-view .MuiTableHead-root .MuiTableCell-root {
+  background: rgba(0, 0, 0, 0.02);
+  font-weight: 600;
+}
+
+.lead-tracker-view .MuiTableRow-root:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Chart containers */
+.lead-tracker-view .recharts-wrapper {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.lead-tracker-view .recharts-pie-label-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lead-tracker-view .recharts-legend-item {
+  font-size: 14px !important;
+}
+
+.lead-tracker-view .recharts-tooltip-wrapper {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Add these styles to your existing Dashboard.css */
+.lead-tracker-view .MuiButton-root {
+  text-transform: none;
+  min-width: 100px;
+}
+
+.lead-tracker-view .MuiButton-contained {
+  background-color: #8884d8;
+  color: #ffffff !important; /* Keep button text white for contrast */
+}
+
+.lead-tracker-view .MuiButton-contained:hover {
+  background-color: #7773c7;
+}
+
+.lead-tracker-view .MuiButton-outlined {
+  border-color: #8884d8;
+  color: #8884d8 !important; /* Keep outlined button text purple */
+}
+
+.lead-tracker-view .MuiButton-outlined:hover {
+  border-color: #7773c7;
+  background-color: rgba(136, 132, 216, 0.04);
+}
+
+/* Chart text colors */
+.lead-tracker-view .recharts-text {
+  fill: rgba(0, 0, 0, 0.87) !important; /* Set chart text to black */
+}
+
+/* Add these styles for the search results table container */
+.task-grid {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Make the table header sticky */
+.task-grid table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f8f9fa;
+}
+
+/* Ensure the table takes full width of container */
+.task-grid table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Add some padding to the table container */
+.task-grid {
+  padding: 1px; /* Small padding to prevent shadow clipping */
+}
+
+/* Optional: Add some styling for better scrollbar appearance */
+.task-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.task-grid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.task-grid::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.task-grid::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Search card styles */
+.lead-tracker-view .search-card {
+  margin-bottom: 24px;
+}
+
+.lead-tracker-view .search-card .MuiCardContent-root {
+  padding: 12px !important;
+}
+
+.lead-tracker-view .search-card .search-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.lead-tracker-view .search-card .search-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.lead-tracker-view .search-card .search-grid .MuiGrid-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 12px !important;
+} 

@@ -1,0 +1,59 @@
+/* Inherit base styles from CallForm.css */
+@import '../../components/CallForm/CallForm.css';
+
+/* Override specific styles for onboarding form */
+.snapped-call-form__section {
+  margin-bottom: 40px;
+}
+
+.snapped-call-form__section-heading {
+  color: var(--snapchat-yellow);
+  font-size: 1.4rem;
+  margin-bottom: 30px;
+}
+
+/* Style for required field indicators */
+.snapped-call-form__input[required]::after {
+  content: '*';
+  color: var(--error-red);
+  margin-left: 4px;
+}
+
+/* Document verification section specific styles */
+.snapped-call-form__checkbox-group {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.snapped-call-form__checkbox-group:hover {
+  border-color: var(--snapchat-yellow);
+  background-color: rgba(255, 252, 0, 0.05);
+}
+
+/* Progress indicator */
+.onboarding-progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: var(--section-bg);
+  border-radius: 8px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-white);
+}
+
+.progress-step.active {
+  color: var(--snapchat-yellow);
+}
+
+.progress-step.completed {
+  color: #4CAF50;
+} 

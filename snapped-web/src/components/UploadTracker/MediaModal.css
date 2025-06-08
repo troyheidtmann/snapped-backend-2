@@ -1,0 +1,1168 @@
+/* Reset and base styles */
+.media-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.media-modal {
+  background: #1e1e1e;
+  border-radius: 8px;
+  width: 95%;
+  max-width: 1400px;
+  height: 95vh;
+  position: relative;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main content layout */
+.media-modal .media-modal-inner {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Media display area - with unique class name */
+.snapped-media-player {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 70vh;
+  margin: 0 auto;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.snapped-media-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.snapped-media-player img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Sidebar file list */
+.file-list {
+  width: 300px;
+  min-width: 300px;
+  background: #2a2a2a;
+  border-radius: 4px;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 85vh;
+}
+
+/* File items - Updated class name */
+.file-item2 {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 8px;
+}
+
+.file-item2:hover {
+  background: #444;
+}
+
+.file-item2.selected {
+  border: 1px solid #94B7EE;
+}
+
+.file-item2.selected .file-name2 {
+  color: #fff;
+  font-weight: 500;
+}
+
+.file-name2 {
+  flex: 1;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+  margin: 0;
+  padding: 0 8px;
+}
+
+/* Buttons */
+.close-button-media-modal,
+.media-close-button,
+.delete-button-media-modal {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  background: rgba(51, 51, 51, 0.8);
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.close-button-media-modal:hover,
+.media-close-button:hover,
+.delete-button-media-modal:hover {
+  background: rgba(77, 77, 77, 0.9);
+  transform: scale(1.1);
+}
+
+.close-button-media-modal:active,
+.media-close-button:active {
+  transform: scale(0.95);
+}
+
+.delete-button-media-modal {
+  color: #dc3545;
+}
+
+.delete-button-media-modal:hover {
+  background: rgba(77, 77, 77, 0.9);
+  transform: scale(1.1);
+  color: #ff4d4d;
+}
+
+/* Session note header */
+.session-note-header {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.media-modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Button row styles */
+.button-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  width: 100%;
+  align-items: center;
+}
+
+.button-row button {
+  flex: 1;
+}
+
+/* Override flex for delete button specifically */
+.button-row .delete-content-button-standalone {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 45px;
+}
+
+/* Delete button base styles */
+.delete-content-button-standalone {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-weight: normal;
+}
+
+.delete-content-button-standalone:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+.delete-content-button-standalone:active {
+  transform: scale(0.95);
+}
+
+.delete-content-button-standalone svg {
+  font-size: 14px;
+}
+
+/* Remove old delete button styles since we're not using them anymore */
+.delete-button-media-modal {
+  display: none;
+}
+
+.modal-header-buttons {
+  display: none;
+}
+
+.session-note-button,
+.view-notes-button,
+.editor-note-button {
+  background-color: #94B7EE;
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.session-note-button:hover,
+.view-notes-button:hover,
+.editor-note-button:hover {
+  background-color: #7da1e2;
+}
+
+.approve-button {
+  background-color: #4caf50; /* Keep the green color for approve button */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.approve-button:hover {
+  background-color: #43a047;
+}
+
+/* Note modal */
+.note-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.note-modal-content,
+.notes-list-modal {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.note-modal-content textarea {
+  width: 95%;
+  margin: 10px 0;
+  padding: 12px;
+  background: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.note-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.note-modal-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #333;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+}
+
+.note-modal-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Update note item styles */
+.note-item {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #444;
+}
+
+.note-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: #999;
+}
+
+.note-item-content {
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Update notes list modal styles */
+.notes-list-modal {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.notes-list-modal h3 {
+  color: #fff;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.delete-button-media-note {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.delete-button-media-note:hover {
+  background: #c82333;
+}
+
+/* Custom scrollbar */
+.file-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-list::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.file-list::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.file-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Make note button in file items more visible */
+.file-item2 button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+}
+
+/* Emoji buttons with yellow border */
+.media-modal .file-list .file-item2 .snapped-file-emoji,
+.media-modal .file-list .file-item2 .note-emoji,
+.media-modal .file-list .file-item2 .editor-note-emoji {
+  background: transparent;
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.media-modal .file-list .file-item2 .note-emoji:hover,
+.media-modal .file-list .file-item2 .editor-note-emoji:hover {
+  background: #94B7EE;
+  transform: scale(1.1);
+}
+
+/* Add these new styles */
+.post-stats-header {
+  position: sticky;
+  top: 0;
+  background: #2a2a2a;
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #333;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 500;
+  color: #94B7EE;
+}
+
+.passcode-input {
+  /* Keep for backward compatibility, but we won't be using it */
+  display: none;
+}
+
+.approve-button:disabled {
+  background: #374151 !important;
+  cursor: not-allowed;
+}
+
+.pin-note-container {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.pin-note-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  color: #fff;
+}
+
+.pin-note-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.file-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* Shared modal styles for Creator and Editor Notes */
+.creator-note-modal-content,
+.note-modal-content {
+  background: #0f0f0f;  /* Darker background like Editor Notes */
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.creator-note-title,
+.note-modal-content h3 {
+  color: #fff;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.creator-note-textarea,
+.note-modal-content textarea {
+  width: 95%;
+  min-height: 120px;
+  padding: 12px;
+  background: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  resize: vertical;
+  margin-bottom: 20px;
+}
+
+.creator-note-textarea:focus,
+.note-modal-content textarea:focus {
+  outline: none;
+  border-color: #666;
+}
+
+.creator-note-buttons,
+.note-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.creator-note-button,
+.note-modal-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.creator-note-button.cancel,
+.note-modal-buttons button:first-child {
+  background: #444;
+  color: #fff;
+}
+
+.creator-note-button.save,
+.note-modal-buttons button:last-child {
+  background: #444;
+  color: #fff;
+}
+
+.creator-note-button:hover,
+.note-modal-buttons button:hover {
+  background: #555;
+}
+
+.creator-note-button:disabled,
+.note-modal-buttons button:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* Creator Notes View Modal - completely separate styling */
+.creator-notes-view-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.creator-notes-view-content {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.creator-notes-view-content h3 {
+  color: #fff;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.creator-notes-item {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #444;
+}
+
+.creator-notes-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: #999;
+}
+
+.creator-notes-item-content {
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.creator-notes-delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.creator-notes-delete-btn:hover {
+  background: #c82333;
+}
+
+/* Add styles for flagged files in the list */
+.file-item2.flagged {
+  border: 2px solid #dc3545 !important;
+  position: relative;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.file-item2.flagged:hover {
+  background: rgba(220, 53, 69, 0.2);
+}
+
+.file-item2.flagged.selected {
+  border: 2px solid #dc3545 !important;
+}
+
+.flag-badge {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #dc3545;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+/* Adjust file actions position for flagged items */
+.file-item2.flagged .file-actions {
+  margin-right: 24px; /* Make room for flag badge */
+}
+
+/* Make the warning icon pulse */
+.file-item2.flagged .fa-icon.warning {
+  animation: warningPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes warningPulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Flag modal styles */
+.flag-modal {
+  position: fixed;
+  inset: 3pc;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  z-index: 1200;
+}
+
+.flag-modal-content {
+  background: #1e1e1e;
+  border: 2px solid #4a4a4a;
+  padding: 24px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 320px; /* 20% less than 400px */
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.flag-modal-content h3 {
+  color: #fff;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  font-weight: 500;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #4a4a4a;
+}
+
+.flag-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.flag-nav-btn {
+  background: none;
+  border: none;
+  color: #94B7EE;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: transform 0.2s;
+}
+
+.flag-nav-btn:hover {
+  transform: scale(1.2);
+}
+
+.flag-count {
+  color: #666;
+  font-size: 14px;
+}
+
+.flag-details {
+  margin-bottom: 24px;
+}
+
+.flag-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+}
+
+.detail-label {
+  color: #666; /* Darker gray to match screenshot */
+  font-size: 14px;
+}
+
+.detail-value {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.flag-modal-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.remove-flag-btn {
+  background: #94B7EE;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  min-width: 140px;
+}
+
+.remove-flag-btn:hover {
+  background: #7da1e2;
+}
+
+.reinstate-flag-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  min-width: 140px;
+}
+
+.reinstate-flag-btn:hover {
+  background: #218838;
+}
+
+/* Make the flag badge clickable */
+.flag-badge {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.flag-badge:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Update video summary styles */
+.video-summary-section {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 600px;
+}
+
+.video-summary-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 12px 0;
+}
+
+.video-summary-content {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #fff;
+}
+
+.summary-blocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  height: 100%;
+}
+
+.summary-block {
+  background: #333;
+  padding: 12px;
+  border-radius: 6px;
+  height: 150px;  /* Fixed height */
+  overflow-y: auto;
+  border: 1px solid #94B7EE;
+}
+
+.summary-block.left-block,
+.summary-block.right-block {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 150px;  /* Fixed height */
+  min-height: 150px;  /* Ensure minimum height */
+  max-height: 150px;  /* Maximum height */
+  overflow-y: auto;
+  border: 1px solid #94B7EE;
+}
+
+.summary-theme {
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+/* Update bullet points styling for both boxes */
+.summary-bullet-points ul,
+.summary-similar ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+
+.summary-bullet-points li,
+.summary-similar li {
+  padding-left: 16px;
+  position: relative;
+  margin-bottom: 2px; /* Reduced from 6px to 2px to tighten spacing */
+  color: #fff;
+  font-size: 13px;
+}
+
+.summary-bullet-points li:before,
+.summary-similar li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #94B7EE;
+}
+
+/* Add specific styling for right box lists */
+.summary-similar ul {
+  margin-top: 4px;
+}
+
+.summary-improvements ul {
+  margin-top: 4px;
+  list-style: none;
+  padding: 0;
+}
+
+.summary-improvements li {
+  padding-left: 16px;
+  position: relative;
+  margin-bottom: 2px;
+  color: #fff;
+  font-size: 13px;
+}
+
+.summary-improvements li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #94B7EE;
+}
+
+.summary-overview {
+  color: #fff;
+  font-style: normal;
+  margin-bottom: 12px;
+}
+
+.video-summary-content strong {
+  color: #94B7EE;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* Add container for video and summary */
+.media-content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+/* Update video summary header styles */
+.summary-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.video-summary-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.beta-tag {
+  font-size: 11px;
+  color: #999;
+  font-weight: normal;
+}
+
+/* Add scrollbar styling for summary content */
+.video-summary-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.video-summary-content::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.video-summary-content::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+/* Make each block independently scrollable */
+.summary-block.left-block {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  max-height: 150px;  /* Match the previous content height */
+  overflow-y: auto;
+}
+
+.summary-block.right-block {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  max-height: 150px;  /* Match the previous content height */
+  overflow-y: auto;
+}
+
+/* Add scrollbar styling for both blocks */
+.summary-block::-webkit-scrollbar {
+  width: 6px;
+}
+
+.summary-block::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.summary-block::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+/* Add spacing between Similar Ideas and Environment */
+.summary-similar {
+  margin-bottom: 16px; /* Add space after the similar ideas section */
+}
+
+/* Ensure consistent spacing for Environment section */
+.summary-environment {
+  margin-top: 16px; /* Add space before environment section */
+}
+
+.date-display-media-modal {
+  font-size: 18px;
+  font-weight: 500;
+  color: #94B7EE;
+  padding: 20px 0;
+  text-align: center;
+  width: 100%;
+}
+
+/* Add approval confirmation text styling */
+.approval-confirmation-text {
+  margin: 15px 0;
+  text-align: center;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Add styles for the modal header buttons container */
+.modal-header-buttons {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  display: flex;
+  gap: 10px;
+  z-index: 1;
+}
+
+/* Add styles for delete confirmation modal */
+.delete-confirmation-text {
+  margin: 15px 0;
+  text-align: center;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Style the delete button in the confirmation modal */
+.note-modal-buttons .delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.note-modal-buttons .delete-button:hover {
+  background-color: #c82333;
+}
+
+/* MediaModal Data Specific Styles */
+.session-note-header-mediamodeldata {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.post-stats-header-mediamodeldata {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.date-display-media-modal-mediamodeldata {
+  color: #94B7EE;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(148, 183, 238, 0.2);
+}
+
+.stats-grid-mediamodeldata {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.stat-item-mediamodeldata {
+  background: #333;
+  border: 1px solid rgba(148, 183, 238, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+  min-height: 45px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.stat-item-mediamodeldata:hover {
+  background: #3a3a3a;
+  border-color: rgba(148, 183, 238, 0.5);
+  transform: translateY(-1px);
+}
+
+.stat-label-mediamodeldata {
+  font-size: 11px;
+  color: #bbb;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  line-height: 1;
+}
+
+.stat-value-mediamodeldata {
+  font-size: 16px;
+  font-weight: 700;
+  color: #94B7EE;
+  line-height: 1;
+}
+
+.media-modal-buttons-mediamodeldata {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.media-modal-buttons-mediamodeldata .button-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  align-items: center;
+}
+
+.media-modal-buttons-mediamodeldata .button-row button {
+  flex: 1;
+  background: #444;
+  color: #fff;
+  border: 1px solid rgba(148, 183, 238, 0.3);
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.media-modal-buttons-mediamodeldata .button-row button:hover {
+  background: #94B7EE;
+  color: #1e1e1e;
+  transform: translateY(-1px);
+}

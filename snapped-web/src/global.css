@@ -1,0 +1,22 @@
+body {
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 0;
+  font-family: Helvetica, Arial, sans-serif;
+} 
+
+:root {
+  --background-dark: #1a1a1a;
+  --text-white: #ffffff;
+  --border-color: #333333;
+  --input-bg: #2a2a2a;
+  --snapchat-yellow: #fffc00;
+} 
+
+* {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+button, input, select, textarea {
+  font-family: Helvetica, Arial, sans-serif;
+} 

@@ -1,0 +1,748 @@
+.upload-tracker {
+  margin: 20px auto;
+  color: #111827;
+  font-family: Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 50vh;
+  padding: 20px;
+  min-height: calc(150vh - 40px);
+}
+
+.upload-tracker .upload-section,
+.upload-tracker .posts-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px #0000001a;
+  height: 50vh;
+  margin-bottom: 20px;
+  max-width: 100%;
+  min-height: 200px;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.upload-table {
+  width: 100%;
+  margin-top: 20px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+  scroll-behavior: smooth;
+  max-height: 75%;
+}
+
+.table-header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #f8f9fa;
+  width: max-content;
+  min-width: 100%;
+}
+
+.table-body {
+  width: max-content;
+  min-width: 100%;
+  position: relative;
+}
+
+.upload-table-fade {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 100px;
+  background: linear-gradient(to right, 
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+.table-row {
+  display: flex;
+  width: 100%;
+  min-width: fit-content;
+  border-bottom: 1px solid #e5e7eb;
+  height: 5.9vh;
+}
+
+.cell {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.client-column {
+  width: 200px;
+  min-width: 200px;
+  flex: 0 0 200px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #f8f9fa;
+}
+
+.date-column {
+  flex: 0 0 130px;
+  min-width: 100px;
+  text-align: center;
+  border-right: 1px solid #e7e8ea;
+}
+
+.date-column.has-uploads {
+  background: rgba(59, 130, 246, 0.1);
+  transition: background-color 0.2s;
+  cursor: default;
+}
+
+.date-column.has-uploads:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+/* Move approved styles after other states for higher specificity */
+.date-column.has-uploads.approved {
+  background: rgba(253, 224, 71, 0.1);
+}
+
+.date-column.has-uploads.approved:hover {
+  background: rgba(253, 224, 71, 0.2);
+}
+
+.date-column.no-content {
+  background: rgba(239, 68, 68, 0.1);
+  cursor: default;
+}
+
+.date-column.has-uploads.has-analytics {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.date-column.has-uploads.has-analytics:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.header-cell {
+  flex: 0 0 130px;
+  text-align: center;
+  padding: 15px;
+  color: #2563eb;
+  font-weight: bold;
+  background: #f8f9fa;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.time {
+  font-size: 0.9rem;
+  color: #2563eb;
+  margin-bottom: 5px;
+}
+
+.time.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time.clickable:hover {
+  color: #1d4ed8;
+  transform: scale(1.05);
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  font-size: 0.8rem;
+  align-items: center;
+  min-height: 20px;
+}
+
+.stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.stats span:not(:last-child)::after {
+  content: '•';
+  margin-left: 4px;
+  color: #9ca3af;
+}
+
+.stats .stat-number {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.has-uploads .stats .fa-icon {
+  color: #111827;
+}
+
+.header-cell.client-header {
+  width: 200px;
+  min-width: 200px;
+  flex: 0 0 200px;
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  background: #f8f9fa;
+}
+
+.date-column:first-of-type {
+  position: static;
+}
+
+.header-cell.date-column:first-of-type {
+  position: static;
+}
+
+.upload-tracker-search-container {
+  margin-left: auto;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  width: auto;
+  position: relative;
+}
+
+.upload-tracker-search-input {
+  width: 250px;
+  height: 28px;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fff;
+  color: #111827;
+  margin: 0;
+  flex: none;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.upload-tracker-search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.upload-tracker-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.upload-tracker h1 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.upload-tracker-search-container::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 50px;
+  background: linear-gradient(to right, transparent, white);
+  pointer-events: none;
+}
+
+/* Add visual separation between the sections */
+.upload-tracker h1:nth-of-type(2) {
+  margin-top: 40px;  /* Add space above the CONTENT DUMPS title */
+  padding-top: 20px; /* Add some padding */
+  border-top: 1px solid #e5e7eb; /* Add a subtle divider line */
+}
+
+.section-header-track {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+  padding-left: 15px;
+}
+
+.section-header-track h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* New wrapper for header and buttons */
+.left-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-button {
+  height: 28px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-button.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.toggle-button:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+.header-cell.client-column {
+  padding-left: 15px;
+}
+
+.cell.client-column {
+  padding-left: 15px;
+}
+
+/* Add specific styles for modal overlay */
+.upload-tracker .media-modal-overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 1000;
+}
+
+/* Update file list structure */
+.file-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Keep header styles the same but remove position: sticky */
+.session-note-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 15px;
+  border-bottom: 1px solid #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;  /* Add space between date and buttons */
+}
+
+/* Create a scrollable container for the files */
+.file-items-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  margin-top: 0;
+}
+
+/* Keep all other styles the same */
+.post-stats-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #374151;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;  /* Slightly reduce gap to fit 6 columns */
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px;  /* Slightly reduce padding */
+}
+
+.stat-label {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.stat-value {
+  color: #fde047;
+  font-size: 18px;  /* Slightly smaller to fit 6 columns */
+  font-weight: bold;
+}
+
+/* Style the button container */
+.note-buttons-container {
+  display: flex;
+  gap: 8px;  /* Reduce gap between buttons */
+  justify-content: flex-start;
+}
+
+/* Update button styles */
+.session-note-button,
+.view-notes-button,
+.approve-button {
+  padding: 6px 10px;
+  min-width: 80px;  /* Reduce minimum width */
+  max-width: 120px; /* Add maximum width */
+  text-align: center;
+  border: none;
+  border-radius: 4px;  /* Slightly smaller radius */
+  background: #fde047;
+  color: #1f2937;
+  font-size: 13px;  /* Slightly smaller font */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;  /* Prevent text wrapping */
+}
+
+.session-note-button:hover,
+.view-notes-button:hover,
+.approve-button:hover {
+  background: #fcd34d;
+}
+
+/* Make approve button green */
+.approve-button {
+  background: #22c55e;
+  color: white;
+}
+
+.approve-button:hover {
+  background: #16a34a;
+}
+
+/* Add some spacing below the sticky header */
+.file-list > div:not(.session-note-header) {
+  margin-top: 10px;
+}
+
+.date-display {
+  color: #fde047;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;  /* Remove bottom margin since we're using gap */
+  text-align: center;  /* Align text to the left */
+}
+
+.media-modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.media-modal-buttons button {
+  flex: 1;
+  max-width: 150px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: normal;
+  line-height: 1.2;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.session-note-button,
+.view-notes-button {
+  background: #fde047;
+  color: #1f2937;
+}
+
+.session-note-button:hover,
+.view-notes-button:hover {
+  background: #fcd34d;
+}
+
+.approve-button {
+  background: #22c55e;
+  color: white;
+}
+
+.approve-button:hover {
+  background: #16a34a;
+}
+
+/* Analytics modal specific button styles */
+.analytics-note-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.analytics-note-button,
+.analytics-view-notes-button {
+  flex: 1;
+  max-width: 150px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: normal;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #fde047;
+  color: #1f2937;
+}
+
+.analytics-note-button:hover,
+.analytics-view-notes-button:hover {
+  background: #fcd34d;
+}
+
+/* Add new styles for the CDN editor notes section */
+.cdn-editor-notes {
+  padding: 10px;
+  color: #fff;
+}
+
+.cdn-editor-notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.add-note-btn {
+  background: #4b5563;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-note-btn:hover {
+  background: #374151;
+}
+
+.note-input-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.note-input {
+  flex: 1;
+  background: #374151;
+  border: 1px solid #4b5563;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.submit-note-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-note-btn:disabled {
+  background: #4b5563;
+  cursor: not-allowed;
+}
+
+.cdn-editor-notes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: calc(13vh - 80px);
+}
+
+.cdn-editor-note-card {
+  background: #374151;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Adjust main content area to account for notes section */
+.cdn-browser {
+  padding-bottom: 13vh;
+}
+
+.cdn-browser-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.cdn-panels {
+  display: flex;
+  height: 87vh;
+}
+
+.cdn-notes-container {
+  height: 13vh;
+  width: 100%;
+}
+
+.file-manager {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.file-browser {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.cdn-notes-container {
+  height: 13vh;
+  width: 100%;
+}
+
+/* Add hover tooltip for analytics */
+.stats span[data-tooltip] {
+  position: relative;
+}
+
+.stats span[data-tooltip]:hover::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.analytics-trigger {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.analytics-trigger:hover {
+  transform: scale(1.05);
+}
+
+.analytics-trigger .stat-number {
+  color: #2563eb;
+}
+
+/* Update flag styles to work with other states */
+.cell.date-column.has-flags {
+  background: rgba(255, 243, 205, 0.8);
+  border: 2px solid #ffc107;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure approved state takes precedence over flags */
+.cell.date-column.has-flags.has-uploads.approved {
+  background: rgba(253, 224, 71, 0.1);
+  border: 2px solid rgba(253, 224, 71, 0.5);
+}
+
+.cell.date-column.has-flags.has-uploads.approved:hover {
+  background: rgba(253, 224, 71, 0.2);
+}
+
+.flag-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ff9800 !important; /* Warning orange */
+  font-size: 48px !important; /* Even larger */
+  z-index: 2;
+  opacity: 0.8 !important; /* More visible */
+  pointer-events: none; /* Allow clicking through */
+}
+
+.cell.date-column.has-flags .stats,
+.cell.date-column.has-flags .time {
+  position: relative;
+  z-index: 3;
+  color: #000 !important; /* Ensure text is visible */
+}
+
+.fa-icon.warning {
+  color: #fefc00 !important;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.4)) !important;
+}
+
+@keyframes warningPulse {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+}
+
+.cell.date-column.has-flags .flag-indicator {
+  animation: warningPulse 1.5s infinite ease-in-out;
+}
+
+/* Remove !important from flag styles */
+.cell.date-column.has-flags.has-uploads,
+.cell.date-column.has-flags.has-analytics {
+  background-color: #fff3cd;
+}
+
+/* Add specific styles for analytics with flags */
+.cell.date-column.has-flags.has-uploads.has-analytics {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.cell.date-column.has-flags.has-uploads.has-analytics:hover {
+  background-color: rgba(34, 197, 94, 0.2);
+}
