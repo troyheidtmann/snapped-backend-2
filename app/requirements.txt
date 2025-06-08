@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+motor
+pymongo[srv]
+python-dotenv
+certifi
+boto3
+botocore
+requests
+python-magic
+PyYAML
+typing_extensions
+python-multipart
+aiofiles
+bcrypt
+cryptography

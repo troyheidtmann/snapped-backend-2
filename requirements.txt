@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-dotenv
+motor
+pymongo
+httpx
+python-multipart
+reportlab
+aiohttp
+ffmpeg-python
+requests
+pytz
+pydantic
+python-jose[cryptography] 

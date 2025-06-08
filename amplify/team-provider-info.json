@@ -1,0 +1,25 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-liveapp3aws-dev-a5807-authRole",
+      "UnauthRoleArn": "arn:aws:iam::423623855656:role/amplify-liveapp3aws-dev-a5807-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::423623855656:role/amplify-liveapp3aws-dev-a5807-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-liveapp3aws-dev-a5807-deployment",
+      "UnauthRoleName": "amplify-liveapp3aws-dev-a5807-unauthRole",
+      "StackName": "amplify-liveapp3aws-dev-a5807",
+      "StackId": "arn:aws:cloudformation:us-east-2:423623855656:stack/amplify-liveapp3aws-dev-a5807/f07a2540-6623-11ef-a113-02e9675aa58d",
+      "AmplifyAppId": "d2sf0cewm8fm2c"
+    },
+    "categories": {
+      "auth": {
+        "liveapp3aws4142f753": {
+          "nativeClientId": "18bi6aqe52e0ctu1hfoeceglg8",
+          "userPoolId": "us-east-2_llVFNwrzo",
+          "userPoolName": "LiveAppAWS-dev-UserPool",
+          "webClientId": "18bi6aqe52e0ctu1hfoeceglg8"
+        }
+      }
+    }
+  }
+}

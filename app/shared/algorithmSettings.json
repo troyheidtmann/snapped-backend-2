@@ -1,0 +1,98 @@
+{
+  "engagement": {
+    "tiktok": {
+      "high": 8,
+      "medium": 3,
+      "points": { "high": 12, "medium": 8, "low": 4 }
+    },
+    "instagram": {
+      "high": 5,
+      "medium": 2,
+      "points": { "high": 15, "medium": 10, "low": 5 }
+    },
+    "average": {
+      "high": 6,
+      "medium": 3,
+      "points": { "high": 10, "medium": 7, "low": 4 }
+    }
+  },
+  "followers": {
+    "snapchat": {
+      "high": 200000,
+      "medium": 75000,
+      "points": { "high": 15, "medium": 10, "low": 5 }
+    },
+    "tiktok": {
+      "high": 750000,
+      "medium": 250000,
+      "points": { "high": 8, "medium": 5, "low": 3 }
+    },
+    "instagram": {
+      "high": 500000,
+      "medium": 150000,
+      "points": { "high": 12, "medium": 8, "low": 4 }
+    },
+    "youtube": {
+      "high": 250000,
+      "medium": 75000,
+      "points": { "high": 12, "medium": 8, "low": 4 }
+    }
+  },
+  "ranks": {
+    "instagram": {
+      "high": 75,
+      "medium": 150,
+      "points": {
+        "high": 10,
+        "medium": 7,
+        "low": 4
+      }
+    },
+    "tiktok": {
+      "high": 100,
+      "medium": 200,
+      "points": {
+        "high": 8,
+        "medium": 5,
+        "low": 3
+      }
+    },
+    "youtube": {
+      "high": 75,
+      "medium": 150,
+      "points": {
+        "high": 12,
+        "medium": 8,
+        "low": 4
+      }
+    }
+  },
+  "recentPerformance": {
+    "tiktok": {
+      "high": 1.5,
+      "medium": 0.8,
+      "low": 0.3,
+      "points": { "high": 6, "medium": 4, "low": 2 }
+    },
+    "instagram": {
+      "high": 1.2,
+      "medium": 0.6,
+      "low": 0.2,
+      "points": { "high": 8, "medium": 5, "low": 3 }
+    },
+    "youtube": {
+      "high": 15,
+      "medium": 8,
+      "low": 3,
+      "points": { "high": 8, "medium": 5, "low": 3 }
+    }
+  },
+  "verification": {
+    "snapchat": 15,
+    "tiktok": 8,
+    "instagram": 10,
+    "youtube": 12
+  },
+  "crossPlatform": 8,
+  "emptyPenalty": -2
+} 

@@ -1,0 +1,55 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-liveapp3aws-dev-a5807-authRole",
+      "UnauthRoleArn": "arn:aws:iam::423623855656:role/amplify-liveapp3aws-dev-a5807-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::423623855656:role/amplify-liveapp3aws-dev-a5807-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-liveapp3aws-dev-a5807-deployment",
+      "UnauthRoleName": "amplify-liveapp3aws-dev-a5807-unauthRole",
+      "StackName": "amplify-liveapp3aws-dev-a5807",
+      "StackId": "arn:aws:cloudformation:us-east-2:423623855656:stack/amplify-liveapp3aws-dev-a5807/f07a2540-6623-11ef-a113-02e9675aa58d",
+      "AmplifyAppId": "d2sf0cewm8fm2c"
+    }
+  },
+  "auth": {
+    "liveapp3aws4142f753": {
+      "service": "Cognito",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "output": {
+        "UserPoolId": "us-east-2_llVFNwrzo",
+        "UserPoolName": "LiveAppAWS-dev-UserPool",
+        "AppClientID": "18bi6aqe52e0ctu1hfoeceglg8",
+        "AppClientIDWeb": "18bi6aqe52e0ctu1hfoeceglg8"
+      },
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "signupAttributes": [
+          "PHONE_NUMBER",
+          "EMAIL",
+          "GIVEN_NAME",
+          "FAMILY_NAME"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": [
+            "REQUIRES_LOWERCASE",
+            "REQUIRES_UPPERCASE",
+            "REQUIRES_NUMBERS",
+            "REQUIRES_SYMBOLS"
+          ]
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "lastPushTimeStamp": "2024-08-29T17:09:59.930Z"
+    }
+  }
+}
