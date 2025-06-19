@@ -14,7 +14,6 @@
 }
 
 .contract-content {
-  background: #424141;
   padding: 20px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -28,7 +27,6 @@
   padding: 20px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  margin-bottom: 20px;
 }
 
 .signature-section p {

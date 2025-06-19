@@ -131,6 +131,12 @@ async def format_statement_for_quickbooks(payee_statement: Dict[str, Any], state
         else:
             description_parts.append("No splits for this period")
 
+        # Join description parts and truncate to 3200 characters if needed
+        full_description = "\n".join(description_parts)
+        if len(full_description) > 3200:
+            logger.warning(f"Description length ({len(full_description)}) exceeds 3200 characters, truncating...")
+            full_description = full_description[:3197] + "..."
+
         # Format data for Make webhook
         make_data = {
             "data": {
@@ -138,7 +144,7 @@ async def format_statement_for_quickbooks(payee_statement: Dict[str, Any], state
                 "amount": float(total_amount),
                 "Line": [{
                     "Amount": total_amount,
-                    "Description": "\n".join(description_parts),
+                    "Description": full_description,
                     "DetailType": "ItemBasedExpenseLineDetail",
                     "type": "itemBased",
                     "ItemRef": "1010000031"

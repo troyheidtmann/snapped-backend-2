@@ -682,67 +682,62 @@
 
 /* Update flag styles to work with other states */
 .cell.date-column.has-flags {
-  background: rgba(255, 243, 205, 0.8);
-  border: 2px solid #ffc107;
+  background: rgba(255, 193, 7, 0.2) !important;
+  border: 2px solid #ffc107 !important;
   position: relative;
   z-index: 1;
 }
 
 /* Ensure approved state takes precedence over flags */
 .cell.date-column.has-flags.has-uploads.approved {
-  background: rgba(253, 224, 71, 0.1);
-  border: 2px solid rgba(253, 224, 71, 0.5);
+  background: rgba(253, 224, 71, 0.1) !important;
+  border: 2px solid rgba(253, 224, 71, 0.5) !important;
 }
 
 .cell.date-column.has-flags.has-uploads.approved:hover {
-  background: rgba(253, 224, 71, 0.2);
+  background: rgba(253, 224, 71, 0.2) !important;
+}
+
+.cell.date-column.no-content {
+  background: rgba(239, 68, 68, 0.1);
+  cursor: default;
+}
+
+.cell.date-column.has-uploads.has-analytics {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.cell.date-column.has-uploads.has-analytics:hover {
+  background: rgba(34, 197, 94, 0.2);
 }
 
 .flag-indicator {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ff9800 !important; /* Warning orange */
-  font-size: 48px !important; /* Even larger */
+  top: 4px;
+  left: 4px;
+  transform: none;
   z-index: 2;
-  opacity: 0.8 !important; /* More visible */
-  pointer-events: none; /* Allow clicking through */
-}
-
-.cell.date-column.has-flags .stats,
-.cell.date-column.has-flags .time {
-  position: relative;
-  z-index: 3;
-  color: #000 !important; /* Ensure text is visible */
+  border-radius: 4px;
+  padding: 4px;
 }
 
 .fa-icon.warning {
-  color: #fefc00 !important;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.4)) !important;
+  color: #dc2626;
+  font-size: 14px;
+  display: block;
 }
 
-@keyframes warningPulse {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-}
-
-.cell.date-column.has-flags .flag-indicator {
-  animation: warningPulse 1.5s infinite ease-in-out;
-}
-
-/* Remove !important from flag styles */
+/* Update cell background for flags */
 .cell.date-column.has-flags.has-uploads,
-.cell.date-column.has-flags.has-analytics {
-  background-color: #fff3cd;
+.cell.date-column.has-flags.has-uploads.has-analytics,
+.cell.date-column.has-flags.has-uploads.approved {
+  background: rgba(254, 226, 226, 0.5) !important;
+  border: 1px solid #dc2626 !important;
+  position: relative;
 }
 
-/* Add specific styles for analytics with flags */
-.cell.date-column.has-flags.has-uploads.has-analytics {
-  background-color: rgba(34, 197, 94, 0.1);
-}
-
-.cell.date-column.has-flags.has-uploads.has-analytics:hover {
-  background-color: rgba(34, 197, 94, 0.2);
+.cell.date-column.has-flags.has-uploads:hover,
+.cell.date-column.has-flags.has-uploads.has-analytics:hover,
+.cell.date-column.has-flags.has-uploads.approved:hover {
+  background: rgba(254, 226, 226, 0.7) !important;
 }

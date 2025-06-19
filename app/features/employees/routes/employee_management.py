@@ -232,15 +232,31 @@ async def get_employee_timesheet(
                         worked_days.add(day["date"])
                         
                         for entry in day.get("entries", []):
-                            # Get client name
-                            client_name = "Unknown Client"
+                            # Get client info - try multiple lookup methods
                             try:
-                                if entry.get("client_id"):
-                                    client = await clients_collection.find_one({"_id": ObjectId(entry["client_id"])})
-                                    if client:
-                                        client_name = f"{client.get('First_Legal_Name', '')} {client.get('Last_Legal_Name', '')}".strip()
+                                client_id = entry.get("client_id")
+                                client = None
+                                
+                                if client_id:
+                                    # First try looking up by client_id directly
+                                    client = await clients_collection.find_one({"client_id": client_id})
+                                    
+                                    # If not found and it looks like an ObjectId, try that
+                                    if not client and len(str(client_id)) == 24:
+                                        try:
+                                            client = await clients_collection.find_one({"_id": ObjectId(str(client_id))})
+                                        except Exception as e:
+                                            logger.error(f"Error looking up by ObjectId: {str(e)}")
+                                
+                                # Get client name, falling back to client_id if not found
+                                if client and (client.get("First_Legal_Name") or client.get("Last_Legal_Name")):
+                                    client_name = f"{client.get('First_Legal_Name', '')} {client.get('Last_Legal_Name', '')}".strip()
+                                else:
+                                    client_name = client_id if client_id else "Unknown Client"
+                                
                             except Exception as e:
-                                logger.warning(f"Could not get client name for {entry.get('client_id')}: {e}")
+                                logger.error(f"Error looking up client: {entry.get('client_id')} - {str(e)}")
+                                client_name = entry.get("client_id", "Unknown Client")
                             
                             entry_hours = entry.get("hours", 0) + (entry.get("minutes", 0) / 60)
                             total_hours += entry_hours
@@ -353,31 +369,31 @@ async def get_employee_metrics(
                     if start_dt <= day_date < end_dt:
                         worked_days.add(day["date"])
                         
-                        for entry in day.get("entries", []):
-                            client_id = entry.get("client_id", "")
-                            category = entry.get("category", "Uncategorized")
-                            hours = entry.get("hours", 0) + (entry.get("minutes", 0) / 60)
-                            earnings = entry.get("earnings", 0)
-                            
-                            # Update client work summary
-                            if client_id not in client_work:
-                                client_work[client_id] = {
-                                    "hours": 0,
-                                    "earnings": 0,
-                                    "categories": {},
-                                    "last_worked": day_date
-                                }
-                            
-                            client_stats = client_work[client_id]
-                            client_stats["hours"] += hours
-                            client_stats["earnings"] += earnings
-                            client_stats["categories"][category] = client_stats["categories"].get(category, 0) + hours
-                            client_stats["last_worked"] = max(client_stats["last_worked"], day_date)
-                            
-                            # Update totals
-                            total_hours += hours
-                            total_earnings += earnings
-                            category_totals[category] = category_totals.get(category, 0) + hours
+                    for entry in day.get("entries", []):
+                        client_id = entry.get("client_id", "")
+                        category = entry.get("category", "Uncategorized")
+                        hours = entry.get("hours", 0) + (entry.get("minutes", 0) / 60)
+                        earnings = entry.get("earnings", 0)
+                        
+                        # Update client work summary
+                        if client_id not in client_work:
+                            client_work[client_id] = {
+                                "hours": 0,
+                                "earnings": 0,
+                                "categories": {},
+                                "last_worked": day_date
+                            }
+                        
+                        client_stats = client_work[client_id]
+                        client_stats["hours"] += hours
+                        client_stats["earnings"] += earnings
+                        client_stats["categories"][category] = client_stats["categories"].get(category, 0) + hours
+                        client_stats["last_worked"] = max(client_stats["last_worked"], day_date)
+                        
+                        # Update totals
+                        total_hours += hours
+                        total_earnings += earnings
+                        category_totals[category] = category_totals.get(category, 0) + hours
                 except ValueError as e:
                     logger.warning(f"Invalid date format in timesheet: {day.get('date')}")
                     continue
@@ -394,9 +410,18 @@ async def get_employee_metrics(
         client_summaries = []
         for client_id, stats in client_work.items():
             try:
-                client_name = "Unknown Client"
+                client_name = client_id if client_id else "Unknown Client"
                 if client_id:
-                    client = await clients_collection.find_one({"_id": ObjectId(client_id)})
+                    # First try looking up by client_id directly
+                    client = await clients_collection.find_one({"client_id": client_id})
+                    
+                    # If not found and it looks like an ObjectId, try that
+                    if not client and len(str(client_id)) == 24:
+                        try:
+                            client = await clients_collection.find_one({"_id": ObjectId(str(client_id))})
+                        except Exception as e:
+                            logger.error(f"Error looking up by ObjectId: {str(e)}")
+                    
                     if client:
                         client_name = f"{client.get('First_Legal_Name', '')} {client.get('Last_Legal_Name', '')}".strip()
                 
@@ -790,9 +815,18 @@ async def download_invoice(
             date = day.get("date", "")
             for entry in day.get("entries", []):
                 # Get client name
-                client_name = "Unknown Client"
+                client_name = entry.get("client_id", "Unknown Client")
                 if entry.get("client_id"):
-                    client = await clients_collection.find_one({"_id": ObjectId(entry["client_id"])})
+                    # First try looking up by client_id directly
+                    client = await clients_collection.find_one({"client_id": entry["client_id"]})
+                    
+                    # If not found and it looks like an ObjectId, try that
+                    if not client and len(str(entry["client_id"])) == 24:
+                        try:
+                            client = await clients_collection.find_one({"_id": ObjectId(str(entry["client_id"]))})
+                        except Exception as e:
+                            logger.error(f"Error looking up by ObjectId: {str(e)}")
+                    
                     if client:
                         client_name = f"{client.get('First_Legal_Name', '')} {client.get('Last_Legal_Name', '')}".strip()
 

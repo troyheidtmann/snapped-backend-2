@@ -31,6 +31,7 @@ import SplitAssignment from './components/Payments/SplitAssignment';
 import PayeeForm from './components/Payments/PayeeForm';
 import CallFormMoxy from './components/CallForm/CallForm-moxy';
 import { FileMover } from './components/FileMover/file-mover';
+import EmployeeDashboard from './components/Employee/EmployeeDashboard';
 import './global.css';
 
 /**
@@ -155,6 +156,12 @@ function App() {
           <Route path="/payments/splits" element={
             <ProtectedRoute>
               <SplitAssignment />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/employees" element={
+            <ProtectedRoute>
+              <EmployeeDashboard />
             </ProtectedRoute>
           } />
           

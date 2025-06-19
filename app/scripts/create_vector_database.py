@@ -48,9 +48,19 @@ from app.shared.database import (
 import re
 import certifi
 from urllib.parse import quote_plus
+import os
+from dotenv import load_dotenv
 
-# Initialize OpenAI client with API key
-client = AsyncOpenAI(api_key="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")
+# Load environment variables
+load_dotenv()
+
+# Get OpenAI API key from environment
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("OPENAI_API_KEY environment variable is not set")
+
+# Initialize OpenAI client with environment variable
+client = AsyncOpenAI(api_key=api_key)
 
 # URL encode username and password
 username = quote_plus("troyheidtmann")

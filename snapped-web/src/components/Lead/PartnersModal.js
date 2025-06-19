@@ -83,14 +83,25 @@ const PartnersModal = ({ isOpen, onClose, onPartnerAdded }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="partners-modal-overlay">
-      <div className="partners-modal">
+    <div className="partners-modal-overlay" onClick={(e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    }}>
+      <div className="partners-modal" onClick={(e) => e.stopPropagation()}>
         <h2>Manage Partners</h2>
-        <button onClick={onClose} className="close-button">
+        <button onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }} className="close-button">
           <FontAwesomeIcon icon={faTimes} />
         </button>
 
-        <form onSubmit={handleSubmit} className="add-partner-form">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleSubmit(e);
+        }} className="add-partner-form">
           <input
             type="text"
             value={newPartner}

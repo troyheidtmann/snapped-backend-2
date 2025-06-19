@@ -40,7 +40,6 @@ import traceback
 from typing import Dict, List, Set
 from datetime import datetime, timezone
 import aiohttp
-from app.shared.bunny_cdn import BunnyCDN
 from app.shared.database import video_analysis_collection, analysis_queue_collection, upload_collection, summary_prompt_collection, MONGODB_URL, MONGO_SETTINGS
 from app.features.videosummary.insights import store_video_analysis_results, extract_insights, update_best_practices
 from twelvelabs import TwelveLabs
@@ -50,6 +49,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import json
 from pymongo import UpdateOne
 from asyncio import gather, create_task, Queue, Task
+import tempfile
+import ffmpeg
+import io
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -65,7 +67,6 @@ class TwelveLabsService:
     and content analysis.
     
     Attributes:
-        bunny (BunnyCDN): CDN client instance
         api_key (str): Twelve Labs API key
         client (TwelveLabs): API client instance
         video_extensions (tuple): Supported video formats
@@ -74,10 +75,7 @@ class TwelveLabsService:
     
     def __init__(self):
         """Initialize service with API credentials and settings."""
-        # Initialize services
-        self.bunny = BunnyCDN()
-        self.api_key = "tlk_01QCMY91XRRKWK21Z3GET1SJRVBA"
-        self.client = TwelveLabs(api_key=self.api_key)
+        self.api_key = "tlk_2Q2CT173542GEK2CR57HP1M09VBZ"
         
         # Video extensions we care about
         self.video_extensions = ('.mp4', '.mov', '.avi')
@@ -85,6 +83,29 @@ class TwelveLabsService:
         # Increase concurrent uploads (adjust based on testing)
         self.max_concurrent_uploads = 15  # or higher if needed
         self.active_tasks: Set[Task] = set()
+        self._client = None
+
+    async def __aenter__(self):
+        """Async context manager entry"""
+        if not self._client:
+            self._client = TwelveLabs(api_key=self.api_key, version="v1.3")
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit"""
+        if self._client:
+            if hasattr(self._client, '__aexit__'):
+                await self._client.__aexit__(exc_type, exc_val, exc_tb)
+            elif hasattr(self._client, '__exit__'):
+                self._client.__exit__(exc_type, exc_val, exc_tb)
+            self._client = None
+
+    @property
+    def client(self):
+        """Get the Twelve Labs client instance"""
+        if not self._client:
+            raise RuntimeError("TwelveLabsService must be used as an async context manager")
+        return self._client
 
     async def create_client_index(self, client_id: str) -> str:
         """
@@ -101,7 +122,7 @@ class TwelveLabsService:
             
         Notes:
             - Checks existing index
-            - Creates dual models
+            - Creates index with Marengo 2.7
             - Updates database
             - Handles errors
         """
@@ -114,18 +135,15 @@ class TwelveLabsService:
                 logger.info(f"Found existing index in uploads: {upload_doc['twelve_labs_index']}")
                 return upload_doc["twelve_labs_index"]
 
-            # If not found, create new index in 12labs with both models
+            # If not found, create new index with Marengo 2.7
             models = [
                 {
                     "name": "marengo2.7",
                     "options": ["visual", "audio"]
-                },
-                {
-                    "name": "pegasus1.2",
-                    "options": ["visual", "audio"]
                 }
             ]
             
+            # Create index synchronously
             index = self.client.index.create(
                 name=client_id,  # Use client_ID as index name
                 models=models,
@@ -146,7 +164,7 @@ class TwelveLabsService:
                 upsert=True
             )
             
-            logger.info(f"Created new dual-model index: {index.id}")
+            logger.info(f"Created new Marengo 2.7 index: {index.id}")
             return index.id
 
         except Exception as e:
@@ -200,10 +218,76 @@ class TwelveLabsService:
         await gather(*workers)
         return results
 
+    async def _preprocess_video(self, video_url: str) -> str:
+        """Preprocess video to ensure it meets Twelve Labs requirements"""
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                # Download video
+                input_path = os.path.join(temp_dir, 'input.mp4')
+                output_path = os.path.join(temp_dir, 'output.mp4')
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(video_url) as response:
+                        if response.status != 200:
+                            raise Exception(f"Failed to download video: {response.status}")
+                        with open(input_path, 'wb') as f:
+                            while True:
+                                chunk = await response.content.read(8192)
+                                if not chunk:
+                                    break
+                                f.write(chunk)
+
+                # Get video dimensions
+                probe = ffmpeg.probe(input_path)
+                video_stream = next((stream for stream in probe['streams'] 
+                                   if stream['codec_type'] == 'video'), None)
+                if not video_stream:
+                    raise Exception("No video stream found")
+
+                width = int(video_stream['width'])
+                height = int(video_stream['height'])
+                aspect_ratio = width / height
+
+                logger.info(f"Original video dimensions: {width}x{height}, aspect ratio: {aspect_ratio:.2f}")
+
+                # If aspect ratio is outside 1:1 to 16:9 range, resize
+                if aspect_ratio < 1 or aspect_ratio > 16/9:
+                    logger.info("Video needs resizing to meet Twelve Labs requirements")
+                    
+                    # Calculate new dimensions to fit within 16:9
+                    if aspect_ratio < 1:  # Too narrow/tall
+                        new_height = min(height, 1920)  # Cap height at 1920
+                        new_width = new_height  # Make it square (1:1)
+                    else:  # Too wide
+                        new_width = min(width, 1920)  # Cap width at 1920
+                        new_height = int(new_width * 9/16)  # 16:9 aspect ratio
+
+                    logger.info(f"Resizing to {new_width}x{new_height}")
+
+                    # Process with ffmpeg
+                    stream = ffmpeg.input(input_path)
+                    stream = ffmpeg.filter(stream, 'scale', width=new_width, height=new_height)
+                    stream = ffmpeg.output(stream, output_path,
+                                         vcodec='libx264',
+                                         preset='ultrafast',
+                                         acodec='aac')
+                    ffmpeg.run(stream, overwrite_output=True)
+
+                    # Return path to processed video
+                    return output_path
+
+                # If no processing needed, return original path
+                return input_path
+
+        except Exception as e:
+            logger.error(f"Error preprocessing video: {str(e)}")
+            raise
+
     async def process_single_video(self, client_id: str, file_data: Dict):
         """Process a single video with non-blocking status checks"""
+        temp_dir = None
         try:
-            # Get index and validate (existing code)
+            # Get index and validate
             upload_doc = await upload_collection.find_one({"client_ID": client_id})
             if not upload_doc or not upload_doc.get("twelve_labs_index"):
                 return {"status": "skipped", "reason": "no_index"}
@@ -216,12 +300,80 @@ class TwelveLabsService:
             if not video_url:
                 return {"status": "error", "reason": "no_cdn_link"}
 
-            # Submit video for indexing
-            task = self.client.task.create(
-                index_id=index_id,
-                url=video_url,
-                language="en"
-            )
+            # Create temp directory that will persist through the whole process
+            temp_dir = tempfile.mkdtemp()
+            
+            # Preprocess video if needed
+            try:
+                # Download video - use original filename
+                original_filename = file_data.get("file_name", "video.mp4")
+                input_path = os.path.join(temp_dir, original_filename)
+                output_path = os.path.join(temp_dir, f"processed_{original_filename}")
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(video_url) as response:
+                        if response.status != 200:
+                            raise Exception(f"Failed to download video: {response.status}")
+                        with open(input_path, 'wb') as f:
+                            while True:
+                                chunk = await response.content.read(8192)
+                                if not chunk:
+                                    break
+                                f.write(chunk)
+
+                # Get video dimensions
+                probe = ffmpeg.probe(input_path)
+                video_stream = next((stream for stream in probe['streams'] 
+                                   if stream['codec_type'] == 'video'), None)
+                if not video_stream:
+                    raise Exception("No video stream found")
+
+                width = int(video_stream['width'])
+                height = int(video_stream['height'])
+                aspect_ratio = width / height
+
+                logger.info(f"Original video dimensions: {width}x{height}, aspect ratio: {aspect_ratio:.2f}")
+
+                # If aspect ratio is outside 1:1 to 16:9 range, resize
+                if aspect_ratio < 1 or aspect_ratio > 16/9:
+                    logger.info("Video needs resizing to meet Twelve Labs requirements")
+                    
+                    # Calculate new dimensions to fit within 16:9
+                    if aspect_ratio < 1:  # Too narrow/tall
+                        new_height = min(height, 1920)  # Cap height at 1920
+                        new_width = new_height  # Make it square (1:1)
+                    else:  # Too wide
+                        new_width = min(width, 1920)  # Cap width at 1920
+                        new_height = int(new_width * 9/16)  # 16:9 aspect ratio
+
+                    logger.info(f"Resizing to {new_width}x{new_height}")
+
+                    # Process with ffmpeg
+                    stream = ffmpeg.input(input_path)
+                    stream = ffmpeg.filter(stream, 'scale', width=new_width, height=new_height)
+                    stream = ffmpeg.output(stream, output_path,
+                                         vcodec='libx264',
+                                         preset='ultrafast',
+                                         acodec='aac')
+                    ffmpeg.run(stream, overwrite_output=True)
+                    video_path = output_path
+                else:
+                    video_path = input_path
+
+                logger.info(f"Video preprocessing completed for {original_filename}")
+
+                # Create file object from video path
+                with open(video_path, 'rb') as f:
+                    # Submit video for indexing using file upload with original filename
+                    task = self.client.task.create(
+                        index_id=index_id,
+                        file=f,  # Pass file object directly
+                        language="en",
+                        filename=original_filename  # Pass original filename to Twelve Labs
+                    )
+            except Exception as e:
+                logger.error(f"Video preprocessing failed for {file_data.get('file_name')}: {str(e)}")
+                return {"status": "error", "reason": f"preprocessing_failed: {str(e)}"}
             
             # Monitor task status asynchronously
             video_id = await self._monitor_task_completion(task)
@@ -241,6 +393,11 @@ class TwelveLabsService:
         except Exception as e:
             logger.error(f"Error in process_single_video: {str(e)}")
             return {"status": "error", "reason": str(e)}
+        finally:
+            # Clean up temp directory
+            if temp_dir and os.path.exists(temp_dir):
+                import shutil
+                shutil.rmtree(temp_dir)
 
     async def _monitor_task_completion(self, task) -> str:
         """Monitor task completion with timeout"""
@@ -264,20 +421,23 @@ class TwelveLabsService:
         await upload_collection.update_one(
             {
                 "client_ID": client_id,
+                "sessions.session_id": file_data["session_id"],
                 "sessions.files.file_name": file_data["file_name"]
             },
             {
                 "$set": {
-                    "sessions.$[].files.$[file].is_indexed": True,
-                    "sessions.$[].files.$[file].twelve_labs_task_id": task_id,
-                    "sessions.$[].files.$[file].twelve_labs_video_id": video_id
+                    "sessions.$[session].files.$[file].is_indexed": True,
+                    "sessions.$[session].files.$[file].twelve_labs_task_id": task_id,
+                    "sessions.$[session].files.$[file].twelve_labs_video_id": video_id
                 }
             },
-            array_filters=[{"file.file_name": file_data["file_name"]}]
+            array_filters=[
+                {"session.session_id": file_data["session_id"]},
+                {"file.file_name": file_data["file_name"]}
+            ]
         )
 
-    async def _update_video_analysis(self, client_id: str, file_data: Dict, task_id: str, 
-                                   video_id: str, index_id: str, video_url: str):
+    async def _update_video_analysis(self, client_id: str, file_data: Dict, task_id: str, video_id: str, index_id: str, video_url: str):
         """Update video analysis collection with results"""
         await video_analysis_collection.update_one(
             {"client_id": client_id},
@@ -710,13 +870,13 @@ class TwelveLabsService:
 async def scan_uploads():
     """Endpoint to scan all existing uploads into Twelve Labs"""
     try:
-        service = TwelveLabsService()
-        stats = await service.scan_existing_uploads()
-        return {
-            "status": "success", 
-            "message": "Completed scanning uploads",
-            "statistics": stats
-        }
+        async with TwelveLabsService() as service:
+            stats = await service.scan_existing_uploads()
+            return {
+                "status": "success", 
+                "message": "Completed scanning uploads",
+                "statistics": stats
+            }
     except Exception as e:
         logger.error(f"Error in scan_uploads endpoint: {str(e)}")
         logger.error(traceback.format_exc())
@@ -726,34 +886,34 @@ async def scan_uploads():
 async def scan_for_indexes():
     """Scan UploadDB.Uploads for documents needing 12labs indexes"""
     try:
-        service = TwelveLabsService()
-        stats = {
-            "total_scanned": 0,
-            "indexes_created": 0,
-            "errors": []
-        }
+        async with TwelveLabsService() as service:
+            stats = {
+                "total_scanned": 0,
+                "indexes_created": 0,
+                "errors": []
+            }
 
-        # Find all documents without an index
-        async for doc in upload_collection.find(
-            {"$or": [
-                {"twelve_labs_index": {"$exists": False}},
-                {"twelve_labs_index": {"$in": [None, ""]}}
-            ]},
-            {"client_ID": 1}
-        ):
-            stats["total_scanned"] += 1
-            client_id = doc.get("client_ID")
-            
-            if not client_id:
-                continue
+            # Find all documents without an index
+            async for doc in upload_collection.find(
+                {"$or": [
+                    {"twelve_labs_index": {"$exists": False}},
+                    {"twelve_labs_index": {"$in": [None, ""]}}
+                ]},
+                {"client_ID": 1}
+            ):
+                stats["total_scanned"] += 1
+                client_id = doc.get("client_ID")
+                
+                if not client_id:
+                    continue
 
-            try:
-                await service.create_client_index(client_id)
-                stats["indexes_created"] += 1
-            except Exception as e:
-                stats["errors"].append({"client_id": client_id, "error": str(e)})
+                try:
+                    await service.create_client_index(client_id)
+                    stats["indexes_created"] += 1
+                except Exception as e:
+                    stats["errors"].append({"client_id": client_id, "error": str(e)})
 
-        return {"status": "success", "statistics": stats}
+            return {"status": "success", "statistics": stats}
 
     except Exception as e:
         logger.error(f"Error in scan_for_indexes: {str(e)}")
@@ -763,37 +923,63 @@ async def scan_for_indexes():
 async def upload_videos():
     """Process multiple videos concurrently"""
     try:
-        service = TwelveLabsService()
-        videos_to_process = []
-        
-        # Collect all videos that need processing
-        async for doc in upload_collection.find({"twelve_labs_index": {"$exists": True, "$ne": ""}}):
-            client_id = doc.get("client_ID")
-            for session in doc.get("sessions", []):
-                for file in session.get("files", []):
-                    if not file.get("is_indexed") and file.get("file_type", "").lower() == "video":
-                        videos_to_process.append({
-                            "client_id": client_id,
-                            "file_data": {**file, "session_id": session.get("session_id", "")}
-                        })
+        async with TwelveLabsService() as service:
+            videos_to_process = []
+            
+            # Get today's date in MM-DD-YYYY format
+            today = datetime.now().strftime("%m-%d-%Y")
+            
+            # Collect all videos that need processing from today's sessions
+            async for doc in upload_collection.find({
+                "twelve_labs_index": {"$exists": True, "$ne": ""},
+                "sessions": {
+                    "$elemMatch": {
+                        "session_id": {"$regex": f"F\\({today}\\)"},
+                        "files": {
+                            "$elemMatch": {
+                                "is_indexed": {"$ne": True},
+                                "file_type": {"$regex": "video", "$options": "i"},
+                                "file_name": {"$exists": True, "$ne": ""}  # Ensure filename exists
+                            }
+                        }
+                    }
+                }
+            }):
+                client_id = doc.get("client_ID")
+                for session in doc.get("sessions", []):
+                    # Only process today's sessions
+                    if not session.get("session_id", "").startswith(f"F({today})"):
+                        continue
+                        
+                    for file in session.get("files", []):
+                        # Only process videos with valid filenames that aren't indexed
+                        if (not file.get("is_indexed") and 
+                            file.get("file_type", "").lower() == "video" and
+                            file.get("file_name")):  # Ensure filename exists
+                            
+                            logger.info(f"Queueing video for processing: {file.get('file_name')} from session {session.get('session_id')}")
+                            videos_to_process.append({
+                                "client_id": client_id,
+                                "file_data": {**file, "session_id": session.get("session_id", "")}
+                            })
 
-        # Process videos concurrently
-        results = await service.process_videos_concurrent(videos_to_process)
-        
-        # Compile statistics
-        stats = {
-            "total": len(videos_to_process),
-            "processed": len([r for r in results if r["status"] == "success"]),
-            "skipped": len([r for r in results if r["status"] == "skipped"]),
-            "failed": len([r for r in results if r["status"] == "error"]),
-            "errors": [r for r in results if r["status"] == "error"]
-        }
+            # Process videos concurrently
+            results = await service.process_videos_concurrent(videos_to_process)
+            
+            # Compile statistics
+            stats = {
+                "total": len(videos_to_process),
+                "processed": len([r for r in results if r["status"] == "success"]),
+                "skipped": len([r for r in results if r["status"] == "skipped"]),
+                "failed": len([r for r in results if r["status"] == "error"]),
+                "errors": [r for r in results if r["status"] == "error"]
+            }
 
-        return {
-            "status": "success",
-            "message": "Completed processing videos",
-            "statistics": stats
-        }
+            return {
+                "status": "success",
+                "message": "Completed processing videos",
+                "statistics": stats
+            }
 
     except Exception as e:
         logger.error(f"Error in upload_videos endpoint: {str(e)}")
@@ -804,9 +990,9 @@ async def upload_videos():
 async def search_index(index_id: str, query: str):
     """Search an index with specific query"""
     try:
-        service = TwelveLabsService()
-        results = await service.search_index(index_id, query)
-        return results
+        async with TwelveLabsService() as service:
+            results = await service.search_index(index_id, query)
+            return results
     except Exception as e:
         logger.error(f"Error in search endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -815,9 +1001,9 @@ async def search_index(index_id: str, query: str):
 async def search_all_indexes(query: str = None):
     """Search all available indexes with specific query or run all moderation queries"""
     try:
-        service = TwelveLabsService()
-        results = await service.search_all_indexes(query)
-        return results
+        async with TwelveLabsService() as service:
+            results = await service.search_all_indexes(query)
+            return results
     except Exception as e:
         logger.error(f"Error in search-all endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -827,54 +1013,54 @@ async def search_all_indexes(query: str = None):
 async def match_search_results(client_id: str = None):
     """Match and record search results in uploads collection for all clients or specific client"""
     try:
-        service = TwelveLabsService()
-        total_processed = 0
-        
-        if client_id:
-            # Process single client
-            video_analysis_doc = await video_analysis_collection.find_one({"client_id": client_id})
-            if not video_analysis_doc:
-                raise HTTPException(status_code=404, detail=f"No video analysis found for client {client_id}")
-                
-            content_flags = video_analysis_doc.get("content_flags", [])
-            if content_flags:
-                await service.video_id_upload_match(content_flags, client_id)
-                total_processed = len(content_flags)
-                
-            return {
-                "status": "success",
-                "message": f"Matched content flags for client {client_id}",
-                "client_id": client_id,
-                "total_flags": total_processed
-            }
-        else:
-            # Process all clients
-            results = []
-            async for doc in video_analysis_collection.find({"content_flags": {"$exists": True}}):
-                client_id = doc.get("client_id")
-                content_flags = doc.get("content_flags", [])
-                
-                if client_id and content_flags:
-                    try:
-                        await service.video_id_upload_match(content_flags, client_id)
-                        total_processed += len(content_flags)
-                        results.append({
-                            "client_id": client_id,
-                            "flags_processed": len(content_flags)
-                        })
-                    except Exception as e:
-                        logger.error(f"Error processing client {client_id}: {str(e)}")
-                        results.append({
-                            "client_id": client_id,
-                            "error": str(e)
-                        })
+        async with TwelveLabsService() as service:
+            total_processed = 0
             
-            return {
-                "status": "success",
-                "message": "Completed matching content flags for all clients",
-                "total_flags_processed": total_processed,
-                "results": results
-            }
+            if client_id:
+                # Process single client
+                video_analysis_doc = await video_analysis_collection.find_one({"client_id": client_id})
+                if not video_analysis_doc:
+                    raise HTTPException(status_code=404, detail=f"No video analysis found for client {client_id}")
+                    
+                content_flags = video_analysis_doc.get("content_flags", [])
+                if content_flags:
+                    await service.video_id_upload_match(content_flags, client_id)
+                    total_processed = len(content_flags)
+                    
+                return {
+                    "status": "success",
+                    "message": f"Matched content flags for client {client_id}",
+                    "client_id": client_id,
+                    "total_flags": total_processed
+                }
+            else:
+                # Process all clients
+                results = []
+                async for doc in video_analysis_collection.find({"content_flags": {"$exists": True}}):
+                    client_id = doc.get("client_id")
+                    content_flags = doc.get("content_flags", [])
+                    
+                    if client_id and content_flags:
+                        try:
+                            await service.video_id_upload_match(content_flags, client_id)
+                            total_processed += len(content_flags)
+                            results.append({
+                                "client_id": client_id,
+                                "flags_processed": len(content_flags)
+                            })
+                        except Exception as e:
+                            logger.error(f"Error processing client {client_id}: {str(e)}")
+                            results.append({
+                                "client_id": client_id,
+                                "error": str(e)
+                            })
+                
+                return {
+                    "status": "success",
+                    "message": "Completed matching content flags for all clients",
+                    "total_flags_processed": total_processed,
+                    "results": results
+                }
                 
     except Exception as e:
         logger.error(f"Error in match_search_results endpoint: {str(e)}")
@@ -885,9 +1071,9 @@ async def match_search_results(client_id: str = None):
 async def summarize_videos():
     """Generate summaries for all newly indexed videos"""
     try:
-        service = TwelveLabsService()
-        results = await service.summarize_all_new_videos()
-        return results
+        async with TwelveLabsService() as service:
+            results = await service.summarize_all_new_videos()
+            return results
     except Exception as e:
         logger.error(f"Error in summarize_videos endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -896,9 +1082,9 @@ async def summarize_videos():
 async def summarize_video(video_id: str, index_id: str):
     """Generate summary for a specific video"""
     try:
-        service = TwelveLabsService()
-        result = await service.generate_video_summary(video_id, index_id)
-        return result
+        async with TwelveLabsService() as service:
+            result = await service.generate_video_summary(video_id, index_id)
+            return result
     except Exception as e:
         logger.error(f"Error in summarize_video endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

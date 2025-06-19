@@ -605,17 +605,37 @@ async def get_assigned_employees(user_ids: str = Query(..., description="Comma-s
         # Log the user IDs we're searching for
         logger.info(f"Searching for employees with user_ids: {user_id_list}")
         
-        # Find employees by user_ids
-        cursor = employees_collection.find({"user_id": {"$in": user_id_list}})
+        # First, find all clients that have any of these employees assigned
+        client_cursor = client_info.find(
+            {"assigned_employees": {"$in": user_id_list}}
+        )
+        clients = await client_cursor.to_list(length=None)
+        
+        # Get the list of actually assigned employee IDs
+        assigned_ids = set()
+        for client in clients:
+            if client.get('assigned_employees'):
+                assigned_ids.update(
+                    emp_id for emp_id in client['assigned_employees'] 
+                    if emp_id in user_id_list
+                )
+        
+        # If no assignments found, return empty list
+        if not assigned_ids:
+            logger.info("No assigned employees found")
+            return []
+        
+        # Find employees that are actually assigned
+        cursor = employees_collection.find({"user_id": {"$in": list(assigned_ids)}})
         employees = await cursor.to_list(length=None)
         
         # Log what we found
-        logger.info(f"Found {len(employees)} employees")
+        logger.info(f"Found {len(employees)} assigned employees")
         
-        # Make sure we return the user_id field in the correct format
+        # Return only the assigned employees with their details
         return [
             {
-                "user_id": emp["user_id"],  # This should be in format like "bm01211990"
+                "user_id": emp["user_id"],
                 "first_name": emp["first_name"],
                 "last_name": emp["last_name"],
                 "email": emp["email"]
@@ -644,6 +664,229 @@ async def debug_employees():
             for emp in employees
         ]
     }
+
+@router.post("/employees/assign")
+async def assign_employee(request: Request):
+    """
+    Assign an employee to a client by updating both collections.
+    Updates both the client's assigned_employees array and the employee's clients array.
+    
+    Args:
+        request (Request): Contains client_id and user_id
+        
+    Returns:
+        JSONResponse: Assignment status
+        
+    Raises:
+        HTTPException: For validation or database errors
+    """
+    try:
+        data = await request.json()
+        client_id = data.get('client_id')
+        user_id = data.get('user_id')
+        
+        logger.info(f"Attempting to assign employee {user_id} to client {client_id}")
+        
+        if not client_id or not user_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Both client_id and user_id are required"
+            )
+
+        # First verify the employee exists
+        employees_collection = async_client["Opps"]["Employees"]
+        employee = await employees_collection.find_one({"user_id": user_id})
+        
+        if not employee:
+            logger.error(f"Employee not found: {user_id}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Employee not found with ID: {user_id}"
+            )
+
+        # Then verify the client exists
+        client = await client_info.find_one({'client_id': client_id})
+        if not client:
+            logger.error(f"Client not found: {client_id}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Client not found with ID: {client_id}"
+            )
+
+        # Update both collections atomically
+        async with await async_client.start_session() as session:
+            async with session.start_transaction():
+                # Update employee's clients array
+                emp_result = await employees_collection.update_one(
+                    {"user_id": user_id},
+                    {"$addToSet": {"clients": client_id}},
+                    session=session
+                )
+                
+                # Update client's assigned_employees array
+                client_result = await client_info.update_one(
+                    {"client_id": client_id},
+                    {"$addToSet": {"assigned_employees": user_id}},
+                    session=session
+                )
+
+                logger.info(f"Assignment update results - Employee matched: {emp_result.matched_count}, "
+                          f"modified: {emp_result.modified_count}, Client matched: {client_result.matched_count}, "
+                          f"modified: {client_result.modified_count}")
+
+                if emp_result.matched_count == 0 or client_result.matched_count == 0:
+                    raise HTTPException(
+                        status_code=500,
+                        detail="Failed to update one or both documents"
+                    )
+
+                # If neither document was modified, the assignment already existed
+                if emp_result.modified_count == 0 and client_result.modified_count == 0:
+                    logger.info(f"Employee {user_id} already assigned to client {client_id}")
+                    return JSONResponse(
+                        status_code=200,
+                        content={
+                            "status": "success",
+                            "message": "Employee already assigned",
+                            "employee": {
+                                "user_id": employee["user_id"],
+                                "first_name": employee["first_name"],
+                                "last_name": employee["last_name"],
+                                "email": employee.get("email")
+                            }
+                        }
+                    )
+
+        logger.info(f"Successfully assigned employee {user_id} to client {client_id}")
+        
+        # Assignment was successful
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "success",
+                "message": "Employee assigned successfully",
+                "employee": {
+                    "user_id": employee["user_id"],
+                    "first_name": employee["first_name"],
+                    "last_name": employee["last_name"],
+                    "email": employee.get("email")
+                }
+            }
+        )
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error assigning employee: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to assign employee: {str(e)}"
+        )
+
+@router.delete("/employees/unassign")
+async def unassign_employee(request: Request):
+    """
+    Remove an employee assignment from both collections.
+    Updates both the client's assigned_employees array and the employee's clients array.
+    
+    Args:
+        request (Request): Contains client_id and user_id
+        
+    Returns:
+        JSONResponse: Unassignment status
+        
+    Raises:
+        HTTPException: For validation or database errors
+    """
+    try:
+        data = await request.json()
+        client_id = data.get('client_id')
+        user_id = data.get('user_id')
+        
+        logger.info(f"Attempting to unassign employee {user_id} from client {client_id}")
+        
+        if not client_id or not user_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Both client_id and user_id are required"
+            )
+
+        # First verify the employee exists
+        employees_collection = async_client["Opps"]["Employees"]
+        employee = await employees_collection.find_one({"user_id": user_id})
+        
+        if not employee:
+            logger.error(f"Employee not found: {user_id}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Employee not found with ID: {user_id}"
+            )
+
+        # Then verify the client exists
+        client = await client_info.find_one({'client_id': client_id})
+        if not client:
+            logger.error(f"Client not found: {client_id}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Client not found with ID: {client_id}"
+            )
+
+        # Update both collections atomically
+        async with await async_client.start_session() as session:
+            async with session.start_transaction():
+                # Remove client from employee's clients array
+                emp_result = await employees_collection.update_one(
+                    {"user_id": user_id},
+                    {"$pull": {"clients": client_id}},
+                    session=session
+                )
+                
+                # Remove employee from client's assigned_employees array
+                client_result = await client_info.update_one(
+                    {"client_id": client_id},
+                    {"$pull": {"assigned_employees": user_id}},
+                    session=session
+                )
+
+                logger.info(f"Unassignment update results - Employee matched: {emp_result.matched_count}, "
+                          f"modified: {emp_result.modified_count}, Client matched: {client_result.matched_count}, "
+                          f"modified: {client_result.modified_count}")
+
+                if emp_result.matched_count == 0 or client_result.matched_count == 0:
+                    raise HTTPException(
+                        status_code=500,
+                        detail="Failed to update one or both documents"
+                    )
+
+                # If neither document was modified, the assignment didn't exist
+                if emp_result.modified_count == 0 and client_result.modified_count == 0:
+                    logger.info(f"Employee {user_id} was not assigned to client {client_id}")
+                    return JSONResponse(
+                        status_code=200,
+                        content={
+                            "status": "success",
+                            "message": "Employee was not assigned"
+                        }
+                    )
+
+        logger.info(f"Successfully unassigned employee {user_id} from client {client_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "success",
+                "message": "Employee unassigned successfully"
+            }
+        )
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error unassigning employee: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to unassign employee: {str(e)}"
+        )
 
 def calculate_algo_score(lead):
     """

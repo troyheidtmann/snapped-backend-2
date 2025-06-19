@@ -10,6 +10,7 @@ Features:
 - Static file serving
 - Error handling
 - Request logging
+- Rate limiting
 
 Data Model:
 - API routes
@@ -24,6 +25,7 @@ Security:
 - Request validation
 - Access control
 - Secure headers
+- Rate limiting
 
 Dependencies:
 - FastAPI for routing
@@ -31,6 +33,7 @@ Dependencies:
 - Static files
 - Logging
 - Database
+- Redis for rate limiting
 
 Author: Snapped Development Team
 """
@@ -44,6 +47,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 import os
 import logging
+from .shared.rate_limit import RateLimitMiddleware
+from .shared.security import SecurityHeadersMiddleware
+from datetime import datetime
 
 
 # Now import all routers
@@ -85,12 +91,19 @@ from .features.payments.routes_splits import router as splits_router
 from .features.cdn.cdn_mongo import router as cdn_mongo_router
 from .features.clients.routes_clients import router as clients_router
 from .features.social.routes_social import router as social_router
+from .features.captions.routes_captions import router as captions_router
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(lifespan=lifespan)
+
+# Add security headers middleware first
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Add rate limiting middleware next
+app.add_middleware(RateLimitMiddleware)
 
 # CORS middleware setup
 app.add_middleware(
@@ -121,7 +134,7 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 logger.info("Mounting API routers...")
 
 # Mount messages router first to ensure it takes precedence
-app.include_router(messages_router)
+app.include_router(messages_router, prefix="/api/messages")
 
 # Then mount other routers
 app.include_router(upload_router)
@@ -171,6 +184,19 @@ app.include_router(
     tags=["desktop-upload"]
 )
 app.include_router(social_router, prefix="/api")
+app.include_router(captions_router, tags=["captions"])
+
+# Add this after the imports but before the router includes
+@app.get("/api/test-rate-limit")
+async def test_rate_limit():
+    """
+    Test endpoint for rate limiting.
+    Returns timestamp to verify unique responses.
+    """
+    return {
+        "message": "Rate limit test",
+        "timestamp": datetime.now().isoformat()
+    }
 
 # Catch-all route LAST
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])

@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../../config/api';
+import './styles/TikTokDownloadModal.css';
 
 /**
  * @typedef {Object} TikTokDownloadModalProps
@@ -221,7 +222,7 @@ const TikTokDownloadModal = ({ isOpen, onClose, clientId, onDownload }) => {
             </button>
             <button 
               type="submit" 
-              className="download-button"
+              className="download-button-sign"
               disabled={isLoading || !tiktokUrl}
             >
               {isLoading ? (

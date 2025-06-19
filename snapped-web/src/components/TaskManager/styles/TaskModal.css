@@ -79,6 +79,21 @@
   background: white;
 }
 
+/* Completion form styles */
+.task-modal__completion-form {
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.task-modal__completion-form h3 {
+  margin: 0 0 24px;
+  color: #1e293b;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
 .task-modal__field {
   margin-bottom: 24px;
 }
@@ -146,6 +161,13 @@
   box-shadow: 0 6px 16px rgba(59, 130, 246, 0.25);
 }
 
+.task-modal__button--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .task-modal__button--secondary {
   padding: 12px 24px;
   border-radius: 12px;
@@ -162,6 +184,32 @@
   background: #f8fafc;
   border-color: #cbd5e1;
   color: #334155;
+}
+
+/* Success button styles */
+.task-modal__button--success {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.task-modal__button--success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.25);
+}
+
+.task-modal__button--success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .selected-assignees {
@@ -229,6 +277,39 @@
   color: #1e293b;
 }
 
+/* Group visibility styles */
+.group-visibility-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.group-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.group-checkbox:hover {
+  background: white;
+  border-color: #3b82f6;
+}
+
+.group-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 /* Scrollbar styling */
 .assignee-options::-webkit-scrollbar {
   width: 8px;
@@ -246,4 +327,36 @@
 
 .assignee-options::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
-} 
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+  .task-modal {
+    width: 95%;
+    margin: 16px;
+  }
+
+  .task-modal__header,
+  .task-modal__body,
+  .task-modal__footer {
+    padding: 16px;
+  }
+
+  .task-modal__footer {
+    flex-direction: column;
+  }
+
+  .task-modal__button--primary,
+  .task-modal__button--secondary,
+  .task-modal__button--success {
+    width: 100%;
+  }
+
+  .group-visibility-options {
+    flex-direction: column;
+  }
+
+  .group-checkbox {
+    width: 100%;
+  }
+}

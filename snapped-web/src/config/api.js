@@ -111,6 +111,12 @@ export const API_ENDPOINTS = {
   /** @property {string} TASKS - Endpoint for task management */
   TASKS: `${API_BASE_URL}/api/tasks`,
   
+  /** @property {string} TASK_TEMPLATES - Endpoint for task templates */
+  TASK_TEMPLATES: `${API_BASE_URL}/api/task-templates`,
+  
+  /** @property {string} CREATE_TASKS_FROM_TEMPLATES - Endpoint for creating tasks from templates */
+  CREATE_TASKS_FROM_TEMPLATES: `${API_BASE_URL}/api/tasks/create-from-templates`,
+  
   /** 
    * @namespace VISTA_GROUP
    * @description Endpoints for Vista group management
@@ -189,12 +195,12 @@ export const API_ENDPOINTS = {
     GET_EDITOR_NOTES: `/api/uploadapp/editor-notes`,
     UPLOAD_VIDEOS: `/api/uploadapp/upload-videos`,
     SCAN_MEDIA: `${API_BASE_URL}/api/content-scan/scan-media`,
+    DELETE_CONTENT: (clientId, sessionFolder) => 
+      `/api/uploadapp/delete-content/${clientId}/${sessionFolder}`,
     UPDATE_FLAG_STATUS: (clientId, folderId, fileName) => 
       `${API_BASE_URL}/api/uploadapp/content-flags/${clientId}/${folderId}/${fileName}/status`,
     VIDEO_SUMMARY: (clientId, sessionId, fileName) => 
       `${API_BASE_URL}/api/uploadapp/video-summary/${clientId}/${sessionId}/${fileName}`,
-    DELETE_CONTENT: (clientId, sessionFolder) =>
-      `${API_BASE_URL}/api/uploadapp/delete-content/${clientId}/${sessionFolder}`,
   },
   
   /** @property {string} SPOTLIGHTS - Endpoint for spotlight content */
@@ -212,6 +218,8 @@ export const API_ENDPOINTS = {
     PARTNER_SEARCH: (query) => `${API_BASE_URL}/api/partners/search/${query}`,
     SEARCH: `${API_BASE_URL}/api/leads/employees/search`,
     GET_ASSIGNED: `${API_BASE_URL}/api/leads/employees/assigned`,
+    ASSIGN: `${API_BASE_URL}/api/leads/employees/assign`,
+    UNASSIGN: `${API_BASE_URL}/api/leads/employees/unassign`,
     LIST: `${API_BASE_URL}/api/employees/`,
     GET: (userId) => `${API_BASE_URL}/api/employees/${userId}`,
     METRICS: (userId) => `${API_BASE_URL}/api/employees/${userId}/metrics`,
@@ -344,7 +352,8 @@ export const API_ENDPOINTS = {
    * @description Endpoints for chat functionality
    */
   CHAT: {
-    SEND: `${API_BASE_URL}/api/chat`
+    SEND: `${API_BASE_URL}/api/chat`,
+    HISTORY: (clientId) => `${API_BASE_URL}/api/chat/history/${clientId}`
   },
   
   /** 
@@ -412,6 +421,10 @@ export const API_ENDPOINTS = {
    */
   MESSAGES: {
     GET_AI_NOTES: (clientId, date) => `${API_BASE_URL}/api/messages/ai-notes/${clientId}/${date}`,
-    GET_AI_TASKS: (clientId, date) => `${API_BASE_URL}/api/messages/tasks/${clientId}/${date}`
+    GET_AI_TASKS: (clientId, date) => `${API_BASE_URL}/api/messages/tasks/${clientId}/${date}`,
+    GET_UNREVIEWED_NOTES: (clientId) => `${API_BASE_URL}/api/messages/unreviewed-notes/${clientId}`,
+    GET_UNREVIEWED_TASKS: (clientId) => `${API_BASE_URL}/api/messages/unreviewed-tasks/${clientId}`,
+    UPDATE_NOTE_REVIEW: (clientId) => `${API_BASE_URL}/api/messages/review-note-status/${clientId}`,
+    UPDATE_TASK_REVIEW: (clientId) => `${API_BASE_URL}/api/messages/review-task-status/${clientId}`
   },
 };

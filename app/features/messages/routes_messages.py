@@ -45,16 +45,23 @@ Dependencies:
 Author: Snapped Development Team
 """
 
-from fastapi import APIRouter, HTTPException, status
-from typing import List, Optional
+from fastapi import APIRouter, HTTPException, status, Depends, Security
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from app.shared.database import message_store
 from datetime import datetime
 from motor.motor_asyncio import AsyncIOMotorClient
 import logging
+import hashlib
+from bson import ObjectId
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+from app.features.tasks.routes_tasks import get_current_user_group
+from app.shared.auth import filter_by_partner
+from app.shared.database import async_client
 
-# Initialize router with prefix
-router = APIRouter(prefix="/api/messages")
+# Initialize router with prefix and security
+router = APIRouter()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -93,6 +100,22 @@ class Message(MessageBase):
 
     class Config:
         from_attributes = True
+
+class ReviewStatus(BaseModel):
+    """
+    Model for review status updates.
+    
+    Attributes:
+        action (str): Action to take ('delete' or 'add')
+        item_id (str): ID of the task or note
+    """
+    action: str
+    item_id: str
+
+def generate_id(content: str, date: str) -> str:
+    """Generate a unique ID for a note or task."""
+    hash_input = f"{content}{date}".encode('utf-8')
+    return hashlib.md5(hash_input).hexdigest()
 
 @router.post("/", response_model=Message, status_code=status.HTTP_201_CREATED)
 async def create_message(message: MessageCreate):
@@ -210,7 +233,15 @@ async def get_ai_notes(client_id: str, date: str):
             if session.get("type") == "ai_analysis":
                 notes = session.get("notes", [])
                 if isinstance(notes, list):
-                    all_notes.extend(notes)
+                    for note in notes:
+                        note_data = {
+                            "id": str(note.get("_id", "")) if isinstance(note, dict) else "",
+                            "content": note if isinstance(note, str) else note.get("content", ""),
+                            "date": date,
+                            "session_id": session.get("session_id", ""),
+                            "timestamp": session.get("timestamp", "")
+                        }
+                        all_notes.append(note_data)
                 else:
                     all_notes.append(notes)
                 logger.info(f"Added notes from date {date}")
@@ -278,12 +309,60 @@ async def get_tasks(client_id: str, date: str):
         
         for session in date_sessions:
             if session.get("type") == "ai_analysis":
+                # Get unreviewed tasks
                 tasks = session.get("tasks", [])
                 if isinstance(tasks, list):
-                    all_tasks.extend(tasks)
-                else:
-                    all_tasks.append(tasks)
-                logger.info(f"Added tasks from date {date}")
+                    for task in tasks:
+                        if isinstance(task, str):
+                            task_id = generate_id(task, date)
+                            task_data = {
+                                "title": task,
+                                "_id": task_id,
+                                "assignees": [
+                                    {
+                                        "client_id": client_id,
+                                        "id": client_id,
+                                        "type": "client"
+                                    }
+                                ],
+                                "priority": "medium",
+                                "description": task,
+                                "timestamp": session.get("timestamp", ""),
+                                "date": date,
+                                "session_id": session.get("session_id", ""),
+                                "status": "active",
+                                "created_by": session.get("created_by", client_id)
+                            }
+                            all_tasks.append(task_data)
+                
+                # Get reviewed tasks
+                reviewed_tasks = session.get("reviewed_tasks", [])
+                if isinstance(reviewed_tasks, list):
+                    for reviewed_task in reviewed_tasks:
+                        if isinstance(reviewed_task, dict) and "content" in reviewed_task:
+                            task = reviewed_task["content"]
+                            task_id = generate_id(task, date)
+                            task_data = {
+                                "title": task,
+                                "_id": task_id,
+                                "assignees": [
+                                    {
+                                        "client_id": client_id,
+                                        "id": client_id,
+                                        "type": "client"
+                                    }
+                                ],
+                                "priority": "medium",
+                                "description": task,
+                                "timestamp": session.get("timestamp", ""),
+                                "date": date,
+                                "session_id": session.get("session_id", ""),
+                                "status": "complete",  # Mark reviewed tasks as complete
+                                "created_by": session.get("created_by", client_id),
+                                "completed_by": reviewed_task.get("completed_by"),
+                                "completed_at": reviewed_task.get("reviewed_at")
+                            }
+                            all_tasks.append(task_data)
 
         logger.info(f"Total tasks found: {len(all_tasks)}")
         return {"tasks": all_tasks}
@@ -359,4 +438,395 @@ async def delete_message(message_id: int):
     """
     result = await message_store.delete_one({"id": message_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Message not found") 
+        raise HTTPException(status_code=404, detail="Message not found")
+
+@router.get("/unreviewed-notes/{client_id}")
+async def get_unreviewed_notes(client_id: str):
+    """
+    Retrieve all AI-generated notes for a client across all dates.
+    
+    Args:
+        client_id (str): Client identifier
+        
+    Returns:
+        dict: Collection of all notes
+        
+    Raises:
+        HTTPException: For database errors
+    """
+    logger.info(f"Fetching all notes for client: {client_id}")
+    
+    try:
+        result = await message_store.find_one(
+            {"user_id": client_id},
+            max_time_ms=5000  # 5 second timeout
+        )
+        
+        if not result or not isinstance(result, dict):
+            logger.info("No valid results found in database")
+            return {"notes": []}
+
+        # Get all notes across all sessions
+        all_notes = []
+        sessions = result.get("sessions", {})
+        
+        if not isinstance(sessions, dict):
+            logger.warning(f"Sessions is not a dictionary: {type(sessions)}")
+            return {"notes": []}
+        
+        for date, date_sessions in sessions.items():
+            if not isinstance(date_sessions, list):
+                logger.warning(f"Date sessions for {date} is not a list: {type(date_sessions)}")
+                continue
+                
+            for session in date_sessions:
+                if not isinstance(session, dict):
+                    logger.warning(f"Session is not a dictionary: {type(session)}")
+                    continue
+                    
+                if session.get("type") == "ai_analysis":
+                    notes = session.get("notes", [])
+                    if isinstance(notes, list):
+                        for note in notes:
+                            if isinstance(note, str):
+                                note_id = generate_id(note, date)
+                                note_data = {
+                                    "id": note_id,
+                                    "content": note,
+                                    "date": date,
+                                    "session_id": session.get("session_id", ""),
+                                    "timestamp": session.get("timestamp", "")
+                                }
+                                all_notes.append(note_data)
+
+        logger.info(f"Found {len(all_notes)} total notes")
+        return {"notes": all_notes}
+
+    except Exception as e:
+        logger.error(f"Error fetching notes: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.get("/unreviewed-tasks/{client_id}")
+async def get_unreviewed_tasks(
+    client_id: str, 
+    filter_type: Optional[str] = None,
+    tab: Optional[str] = None,  # Added for iOS app compatibility
+    user_groups: dict = Depends(get_current_user_group)
+):
+    """
+    Retrieve all AI-generated tasks for a client across all dates.
+    
+    Args:
+        client_id (str): Client identifier
+        filter_type (Optional[str]): Filter type ("priority", "completed", or None for active)
+        tab (Optional[str]): Tab name from iOS app ("completed", "priority", or None)
+        user_groups (dict): User authentication data
+        
+    Returns:
+        dict: Collection of all tasks
+        
+    Raises:
+        HTTPException: For database errors or unauthorized access
+    """
+    logger.info(f"Fetching all tasks for client: {client_id}, filter: {filter_type}, tab: {tab}")
+    
+    # Check client access permission
+    filter_query = await filter_by_partner(user_groups)
+    if filter_query:  # If not admin (empty filter = admin)
+        # Check if user has access to this client
+        client_access = await async_client["ClientDb"]["ClientInfo"].find_one({
+            "client_id": client_id,
+            **filter_query
+        })
+        if not client_access:
+            raise HTTPException(status_code=403, detail="Not authorized to access this client")
+    
+    try:
+        # Get AI-generated tasks from messages
+        result = await message_store.find_one(
+            {"user_id": client_id},
+            max_time_ms=5000
+        )
+        
+        all_tasks = []
+        
+        # Process AI-generated tasks
+        if result and isinstance(result, dict):
+            sessions = result.get("sessions", {})
+            
+            if isinstance(sessions, dict):
+                for date, date_sessions in sessions.items():
+                    if isinstance(date_sessions, list):
+                        for session in date_sessions:
+                            if isinstance(session, dict) and session.get("type") == "ai_analysis":
+                                tasks = session.get("tasks", [])
+                                if isinstance(tasks, list):
+                                    for task in tasks:
+                                        if isinstance(task, str):
+                                            task_id = generate_id(task, date)
+                                            task_data = {
+                                                "_id": str(task_id),
+                                                "title": str(task),
+                                                "description": str(task),
+                                                "status": "active",
+                                                "priority": "high",
+                                                "due_date": str(date),
+                                                "assignees": [
+                                                    {
+                                                        "id": str(client_id),
+                                                        "name": f"Client {client_id}",
+                                                        "type": "client",
+                                                        "client_id": str(client_id),
+                                                        "employee_id": None
+                                                    }
+                                                ]
+                                            }
+                                            all_tasks.append(task_data)
+
+        return {"tasks": all_tasks}
+
+    except Exception as e:
+        logger.error(f"Error fetching tasks: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.post("/review-note-status/{client_id}")
+async def update_note_review_status(client_id: str, review: ReviewStatus):
+    """
+    Update the review status of a note.
+    
+    Args:
+        client_id (str): Client identifier
+        review (ReviewStatus): Review status update data
+        
+    Returns:
+        dict: Success status
+        
+    Raises:
+        HTTPException: For database errors or invalid actions
+    """
+    logger.info(f"Updating note review status for client: {client_id}")
+    
+    try:
+        if review.action not in ["delete", "add"]:
+            raise HTTPException(status_code=400, detail="Invalid action. Must be 'delete' or 'add'")
+
+        # Find the note content using the ID
+        result = await message_store.find_one(
+            {"user_id": client_id},
+            max_time_ms=5000
+        )
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Client not found")
+            
+        sessions = result.get("sessions", {})
+        note_content = None
+        note_date = None
+        
+        for date, date_sessions in sessions.items():
+            for session in date_sessions:
+                if session.get("type") == "ai_analysis":
+                    notes = session.get("notes", [])
+                    for note in notes:
+                        if isinstance(note, str):
+                            note_id = generate_id(note, date)
+                            if note_id == review.item_id:
+                                note_content = note
+                                note_date = date
+                                break
+                    if note_content:
+                        break
+            if note_content:
+                break
+                
+        if not note_content:
+            raise HTTPException(status_code=404, detail="Note not found")
+
+        # Update the review status in the database
+        if review.action == "add":
+            # Move the note to reviewed_notes array
+            result = await message_store.update_one(
+                {
+                    "user_id": client_id,
+                    "sessions": {
+                        "$elemMatch": {
+                            "type": "ai_analysis",
+                            "notes": note_content
+                        }
+                    }
+                },
+                {
+                    "$pull": {
+                        "sessions.$[session].notes": note_content
+                    },
+                    "$push": {
+                        "sessions.$[session].reviewed_notes": {
+                            "content": note_content,
+                            "reviewed_at": datetime.utcnow()
+                        }
+                    }
+                },
+                array_filters=[{"session.type": "ai_analysis"}]
+            )
+        else:
+            # Delete the note
+            result = await message_store.update_one(
+                {
+                    "user_id": client_id,
+                    "sessions": {
+                        "$elemMatch": {
+                            "type": "ai_analysis",
+                            "notes": note_content
+                        }
+                    }
+                },
+                {
+                    "$pull": {
+                        "sessions.$[session].notes": note_content
+                    }
+                },
+                array_filters=[{"session.type": "ai_analysis"}]
+            )
+
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Note not found")
+
+        return {"status": "success", "message": f"Note review status updated to {review.action}"}
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error updating note review status: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.post("/review-task-status/{client_id}")
+async def update_task_review_status(client_id: str, review: ReviewStatus, user_groups: dict = Depends(get_current_user_group)):
+    """
+    Update the review status of a task.
+    Also handles task completion in the main task system.
+    
+    Args:
+        client_id (str): Client identifier
+        review (ReviewStatus): Review status update data
+        user_groups (dict): User authentication data
+        
+    Returns:
+        dict: Success status
+        
+    Raises:
+        HTTPException: For database errors or invalid actions
+    """
+    logger.info(f"Updating task review status for client: {client_id}")
+    
+    try:
+        if review.action not in ["delete", "add"]:
+            raise HTTPException(status_code=400, detail="Invalid action. Must be 'delete' or 'add'")
+
+        # First try to find and update in the main task system
+        from app.features.tasks.routes_tasks import tasks, complete_task  # Import tasks collection and complete_task function
+        from app.features.tasks.models import TaskCompletion
+        
+        try:
+            # Try to interpret the item_id as a task ID
+            task = await tasks.find_one({"_id": ObjectId(review.item_id)})
+            if task:
+                # This is a task from the main system, complete it
+                completion = TaskCompletion(
+                    hours=0,  # Default to 0 since we don't have this info
+                    minutes=30,  # Default to 30 minutes
+                    notes="Completed via mobile app"
+                )
+                return await complete_task(review.item_id, completion, user_groups)
+        except:
+            # Not a valid ObjectId, continue with message system
+            pass
+
+        # If not found in main system, try message system
+        result = await message_store.find_one(
+            {"user_id": client_id},
+            max_time_ms=5000
+        )
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Client not found")
+            
+        sessions = result.get("sessions", {})
+        task_content = None
+        task_date = None
+        
+        for date, date_sessions in sessions.items():
+            for session in date_sessions:
+                if session.get("type") == "ai_analysis":
+                    tasks = session.get("tasks", [])
+                    for task in tasks:
+                        if isinstance(task, str):
+                            task_id = generate_id(task, date)
+                            if task_id == review.item_id:
+                                task_content = task
+                                task_date = date
+                                break
+                    if task_content:
+                        break
+            if task_content:
+                break
+                
+        if not task_content:
+            raise HTTPException(status_code=404, detail="Task not found")
+
+        # Update the review status in the database
+        if review.action == "add":
+            # Move the task to reviewed_tasks array
+            result = await message_store.update_one(
+                {
+                    "user_id": client_id,
+                    "sessions": {
+                        "$elemMatch": {
+                            "type": "ai_analysis",
+                            "tasks": task_content
+                        }
+                    }
+                },
+                {
+                    "$pull": {
+                        "sessions.$[session].tasks": task_content
+                    },
+                    "$push": {
+                        "sessions.$[session].reviewed_tasks": {
+                            "content": task_content,
+                            "reviewed_at": datetime.utcnow(),
+                            "completed_by": user_groups.get("user_id")
+                        }
+                    }
+                },
+                array_filters=[{"session.type": "ai_analysis"}]
+            )
+        else:
+            # Delete the task
+            result = await message_store.update_one(
+                {
+                    "user_id": client_id,
+                    "sessions": {
+                        "$elemMatch": {
+                            "type": "ai_analysis",
+                            "tasks": task_content
+                        }
+                    }
+                },
+                {
+                    "$pull": {
+                        "sessions.$[session].tasks": task_content
+                    }
+                },
+                array_filters=[{"session.type": "ai_analysis"}]
+            )
+
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Task not found")
+
+        return {"status": "success", "message": f"Task review status updated to {review.action}"}
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error updating task review status: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}") 

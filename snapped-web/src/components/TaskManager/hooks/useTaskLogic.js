@@ -61,13 +61,48 @@ export const useTaskLogic = () => {
     setLoading(true);
     try {
       let url = API_ENDPOINTS.TASKS;
+      
+      // Only add filter if not "all" tab
       if (activeTab !== 'all') {
-        url += `?filter_type=${activeTab}`;
+        // Map frontend tab names to backend filter types
+        const filterMap = {
+          'priority': 'priority',
+          'completed': 'completed'
+        };
+        
+        if (filterMap[activeTab]) {
+          url += `?filter_type=${filterMap[activeTab]}`;
+        }
       }
       
       const response = await axios.get(url);
       if (response.data && Array.isArray(response.data.tasks)) {
-        setTasks(response.data.tasks);
+        // Process tasks to ensure consistent status values
+        const processedTasks = response.data.tasks.map(task => ({
+          ...task,
+          // Normalize status values for frontend display
+          status: task.status?.toLowerCase() === 'completed' ? 'complete' : task.status?.toLowerCase() || 'active',
+          // Normalize priority values for frontend display
+          priority: task.priority?.toLowerCase() || 'medium'
+        }));
+
+        // Filter tasks based on active tab
+        let filteredTasks = processedTasks;
+        if (activeTab === 'all' || activeTab === 'priority') {
+          // For all and priority tabs, exclude completed tasks
+          filteredTasks = processedTasks.filter(task => 
+            task.status.toLowerCase() !== 'complete' && 
+            task.status.toLowerCase() !== 'completed'
+          );
+        } else if (activeTab === 'completed') {
+          // For completed tab, only show completed tasks
+          filteredTasks = processedTasks.filter(task => 
+            task.status.toLowerCase() === 'complete' || 
+            task.status.toLowerCase() === 'completed'
+          );
+        }
+
+        setTasks(filteredTasks);
       } else {
         console.error('Invalid response format:', response.data);
         setTasks([]);

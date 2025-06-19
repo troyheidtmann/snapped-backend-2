@@ -20,7 +20,8 @@ import {
   faComments,
   faCamera,
   faChartBar,
-  faExclamationTriangle
+  faExclamationTriangle,
+  faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../../utils/axiosConfig';
 import { toast } from 'react-hot-toast';
@@ -262,21 +263,6 @@ const UploadTracker = () => {
         const uploadsResponse = await axios.get(API_ENDPOINTS.UPLOAD_ACTIVITY);
         console.log('Upload activity response:', uploadsResponse.data);
         
-        // Debug log for session data and approval status
-        if (uploadsResponse?.data?.data && uploadsResponse.data.data.length > 0) {
-          uploadsResponse.data.data.forEach(client => {
-            if (client.uploads) {
-              client.uploads.forEach(upload => {
-                if (upload.sessions) {
-                  console.log(`Client ${client.clientName}, Date ${upload.date} sessions:`, upload.sessions);
-                  const hasApproved = upload.sessions.some(session => session.approved === true);
-                  console.log(`Has approved sessions: ${hasApproved}`);
-                }
-              });
-            }
-          });
-        }
-        
         const clients = uploadsResponse?.data?.data || [];
         setClientData(clients);
 
@@ -289,6 +275,8 @@ const UploadTracker = () => {
               if (!clientId) return;
 
               const flagsResponse = await axios.get(`${API_ENDPOINTS.CONTENT_FLAGS}/${clientId}`);
+              console.log(`Flags for client ${client.clientName} (${clientId}):`, flagsResponse.data);
+              
               if (flagsResponse?.data?.data) {
                 flagsResponse.data.data.forEach(flag => {
                   if (!flagsMap[clientId]) {
@@ -298,6 +286,7 @@ const UploadTracker = () => {
                     flagsMap[clientId][flag.folder_id] = [];
                   }
                   flagsMap[clientId][flag.folder_id].push(flag);
+                  console.log(`Added flag for folder ${flag.folder_id}:`, flag);
                 });
               }
             } catch (error) {
@@ -305,6 +294,7 @@ const UploadTracker = () => {
             }
           })
         );
+        console.log('Final flags map:', flagsMap);
         setContentFlags(flagsMap);
 
         // Continue with other data fetching...
@@ -1000,11 +990,27 @@ const UploadTracker = () => {
                         className={`cell date-column 
                           ${hasUploads ? 'has-uploads' : 'no-content'} 
                           ${views > 0 ? 'has-analytics' : ''}
-                          ${contentFlags[client._id]?.[date] ? 'has-flags' : ''}
-                          ${dayData?.sessions?.some(session => {
-                            console.log(`Checking session approval for ${client.clientName}, ${date}:`, session);
-                            return session.approved === true;
-                          }) ? 'approved' : ''}`}
+                          ${(() => {
+                            // Format date as MM-DD-YYYY for folder ID
+                            const [year, month, day] = date.split('-');
+                            const folderID = `F(${month}-${day}-${year})_${client._id}`;
+                            
+                            // Check if there are any flags for this folder that aren't removed
+                            const folderFlags = contentFlags[client._id]?.[folderID] || [];
+                            const hasFlags = folderFlags.some(flag => 
+                              !flag.content_matches_status || flag.content_matches_status !== 'removed'
+                            );
+                            
+                            console.log(`Checking flags for client ${client.clientName}, date ${date}:`, {
+                              folderID,
+                              flags: folderFlags,
+                              hasFlags,
+                              icon: faExclamationTriangle || faTriangleExclamation
+                            });
+                            
+                            return hasFlags ? 'has-flags' : '';
+                          })()} 
+                          ${dayData?.sessions?.some(session => session.approved === true) ? 'approved' : ''}`}
                         onClick={() => hasUploads && handleCellClick(client, date)}
                       >
                         {hasUploads && (
@@ -1036,11 +1042,24 @@ const UploadTracker = () => {
                                 </span>
                               )}
                             </div>
-                            {contentFlags[client._id]?.[date] && (
-                              <div className="flag-indicator">
-                                <FontAwesomeIcon icon={faExclamationTriangle} className="fa-icon warning" />
-                              </div>
-                            )}
+                            {(() => {
+                              const [year, month, day] = date.split('-');
+                              const folderID = `F(${month}-${day}-${year})_${client._id}`;
+                              const folderFlags = contentFlags[client._id]?.[folderID] || [];
+                              const hasFlags = folderFlags.some(flag => 
+                                !flag.content_matches_status || flag.content_matches_status !== 'removed'
+                              );
+                              
+                              return hasFlags ? (
+                                <div className="flag-indicator">
+                                  <FontAwesomeIcon 
+                                    icon={faExclamationTriangle || faTriangleExclamation}
+                                    className="fa-icon warning"
+                                    style={{ display: 'block', fontSize: '20px' }}
+                                  />
+                                </div>
+                              ) : null;
+                            })()}
                           </>
                         )}
                       </div>

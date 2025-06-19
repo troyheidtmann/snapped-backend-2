@@ -41,6 +41,7 @@ const ChatInterface = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState('');
     const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [permissionError, setPermissionError] = useState(null);
     const messagesEndRef = useRef(null);
     const chatMessagesRef = useRef(null);
@@ -72,6 +73,54 @@ const ChatInterface = () => {
         };
         fetchUsers();
     }, []);
+
+    // Function to scroll to bottom of messages
+    const scrollToBottom = () => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    // Fetch chat history when user is selected
+    useEffect(() => {
+        const fetchChatHistory = async () => {
+            if (!selectedUser) return;
+            
+            try {
+                setIsLoadingHistory(true);
+                const token = await getAccessToken();
+                const response = await fetch(API_ENDPOINTS.CHAT.HISTORY(selectedUser), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success' && Array.isArray(data.messages)) {
+                    // Convert timestamps to Date objects
+                    const formattedMessages = data.messages.map(msg => ({
+                        ...msg,
+                        timestamp: new Date(msg.timestamp)
+                    }));
+                    setMessages(formattedMessages);
+                    // Scroll to bottom after messages are loaded
+                    setTimeout(scrollToBottom, 100); // Small delay to ensure messages are rendered
+                }
+            } catch (error) {
+                console.error('Error fetching chat history:', error);
+                setMessages([]);
+            } finally {
+                setIsLoadingHistory(false);
+            }
+        };
+
+        fetchChatHistory();
+    }, [selectedUser, getAccessToken]);
+
+    // Scroll to bottom when new messages are added
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
     useEffect(() => {
         // Remove recent-message class from previous message
@@ -172,40 +221,50 @@ const ChatInterface = () => {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                             placeholder={selectedUser ? "Ask anything about this client..." : "Please select a client first"}
-                            disabled={!selectedUser}
+                            disabled={!selectedUser || isLoadingHistory}
                         />
                     </div>
                 </div>
                 <div className="chat-messages">
                     <div className="messages-viewport">
                         <div className="messages-content">
-                            {messages.map((message, index) => (
-                                <div 
-                                    key={index} 
-                                    className={`message ${message.role === 'user' ? 'user' : 'assistant'}`}
-                                >
-                                    <div className="message-content">
-                                        {message.role === 'user' ? (
-                                            message.content
-                                        ) : (
-                                            <Markdown options={{
-                                                forceBlock: true,
-                                                overrides: {
-                                                    h1: { props: { className: 'message-heading-1' } },
-                                                    h2: { props: { className: 'message-heading-2' } },
-                                                    h3: { props: { className: 'message-heading-3' } },
-                                                    p: { props: { className: 'message-paragraph' } },
-                                                    ul: { props: { className: 'message-list' } },
-                                                    li: { props: { className: 'message-list-item' } },
-                                                    code: { props: { className: 'message-code' } },
-                                                },
-                                            }}>
-                                                {message.content}
-                                            </Markdown>
-                                        )}
+                            {isLoadingHistory ? (
+                                <div className="message assistant">
+                                    <div className="typing-indicator">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
                                     </div>
                                 </div>
-                            ))}
+                            ) : (
+                                messages.map((message, index) => (
+                                    <div 
+                                        key={index} 
+                                        className={`message ${message.role === 'user' ? 'user' : 'assistant'}`}
+                                    >
+                                        <div className="message-content">
+                                            {message.role === 'user' ? (
+                                                message.content
+                                            ) : (
+                                                <Markdown options={{
+                                                    forceBlock: true,
+                                                    overrides: {
+                                                        h1: { props: { className: 'message-heading-1' } },
+                                                        h2: { props: { className: 'message-heading-2' } },
+                                                        h3: { props: { className: 'message-heading-3' } },
+                                                        p: { props: { className: 'message-paragraph' } },
+                                                        ul: { props: { className: 'message-list' } },
+                                                        li: { props: { className: 'message-list-item' } },
+                                                        code: { props: { className: 'message-code' } },
+                                                    },
+                                                }}>
+                                                    {message.content}
+                                                </Markdown>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                             {loading && (
                                 <div className="message assistant recent-message">
                                     <div className="typing-indicator">
@@ -215,7 +274,7 @@ const ChatInterface = () => {
                                     </div>
                                 </div>
                             )}
-                            <div ref={messagesEndRef} />
+                            <div ref={messagesEndRef} style={{ height: '1px' }} />
                         </div>
                     </div>
                 </div>

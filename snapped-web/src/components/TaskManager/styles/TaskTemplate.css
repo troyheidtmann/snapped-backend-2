@@ -1,0 +1,259 @@
+.task-template {
+  padding: 16px;
+}
+
+.task-template__create-button {
+  padding: 8px 16px;
+  background-color: #38A169;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.task-template__create-button:hover {
+  background-color: #2F855A;
+}
+
+.task-template__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.task-template__table th,
+.task-template__table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.task-template__table th {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.task-template__table tr:hover {
+  background-color: #f8fafc;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge--high {
+  background-color: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.badge--medium {
+  background-color: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.badge--low {
+  background-color: #D1FAE5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.badge--green {
+  background-color: #D1FAE5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.badge--blue {
+  background-color: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+
+.badge--gray {
+  background-color: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+}
+
+/* Switch styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #CBD5E1;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #38A169;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Modal styles */
+.task-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.task-modal {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.task-modal__header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-modal__header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.task-modal__close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.task-modal__body {
+  padding: 24px;
+}
+
+.task-modal__field {
+  margin-bottom: 16px;
+}
+
+.task-modal__field label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.task-modal__input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1a202c;
+  transition: all 0.2s;
+}
+
+.task-modal__input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea.task-modal__input {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.task-modal__footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.task-modal__button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.task-modal__button--primary {
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+}
+
+.task-modal__button--primary:hover {
+  background-color: #2563EB;
+}
+
+.task-modal__button--secondary {
+  background-color: white;
+  color: #64748B;
+  border: 1px solid #CBD5E1;
+}
+
+.task-modal__button--secondary:hover {
+  background-color: #F1F5F9;
+} 

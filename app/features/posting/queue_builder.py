@@ -59,7 +59,7 @@ Author: Snapped Development Team
 from datetime import datetime, timedelta, timezone
 import logging
 from app.shared.database import async_client
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from fastapi import APIRouter, HTTPException
 import pytz
 from app.shared.models import QueueStatus
@@ -98,10 +98,17 @@ class QueueBuilder:
             
             logger.info("QueueBuilder initialized with all collections")
             
-            # Base times in UTC that result in these ET display times:
+            # Legacy time blocks (for posts without time extensions)
             self.MORNING_POST_TIME = 12    # 12:00 UTC = 7:00 AM ET (base)
             self.AFTERNOON_POST_TIME = 17  # 17:00 UTC = 12:00 PM ET (base)
             self.EVENING_POST_TIME = 21    # 21:00 UTC = 4:00 PM ET (base)
+            
+            # New time blocks for extensions
+            self.MORNING_START = 15        # 15:00 UTC = 10:00 AM ET
+            self.AFTERNOON_START = 19      # 19:00 UTC = 2:00 PM ET
+            self.EVENING_START = 1         # 01:00 UTC = 8:00 PM ET
+            self.ALL_DAY_START = 14        # 14:00 UTC = 9:00 AM ET
+            self.ALL_DAY_END = 24          # 24:00 UTC = 7:00 PM ET
             
             # Define timezone adjustments relative to ET
             self.timezone_adjustments = {
@@ -117,6 +124,87 @@ class QueueBuilder:
         except Exception as e:
             logger.error(f"Error initializing QueueBuilder: {str(e)}")
             raise
+            
+    def _get_time_extension(self, file_name: str) -> str:
+        """
+        Extract time-of-day extension from filename if present
+        
+        Args:
+            file_name (str): Name of the file
+            
+        Returns:
+            str: Time extension ('m', 'a', 'e', 'l') or None
+        """
+        try:
+            # Split filename and check for time extension
+            parts = file_name.split('.')
+            if len(parts) < 2:
+                return None
+                
+            name_part = parts[0]
+            if name_part.endswith('-m'):
+                return 'm'
+            elif name_part.endswith('-a'):
+                return 'a'
+            elif name_part.endswith('-e'):
+                return 'e'
+            elif name_part.endswith('-l'):
+                return 'l'
+            return None
+        except Exception as e:
+            logger.error(f"Error parsing time extension from filename {file_name}: {str(e)}")
+            return None
+            
+    def _calculate_schedule_time(self, base_time: int, file_index: int, total_files: int, 
+                               time_extension: str, queue_date: datetime, hour_adjustment: int) -> datetime:
+        """
+        Calculate scheduled time based on time extension and file position
+        
+        Args:
+            base_time (int): Base hour in UTC
+            file_index (int): Position of file in sequence
+            total_files (int): Total number of files to schedule
+            time_extension (str): Time-of-day extension
+            queue_date (datetime): Base date for scheduling
+            hour_adjustment (int): Timezone adjustment
+            
+        Returns:
+            datetime: Scheduled posting time
+        """
+        try:
+            if time_extension == 'l':  # All day scheduling
+                # Calculate time spread between 9 AM and 7 PM
+                total_minutes = (self.ALL_DAY_END - self.ALL_DAY_START) * 60
+                minutes_per_post = total_minutes / (total_files + 1)  # +1 to avoid ending exactly at 7 PM
+                minutes_offset = minutes_per_post * file_index
+                
+                base_datetime = queue_date.replace(
+                    hour=(self.ALL_DAY_START - hour_adjustment) % 24,
+                    minute=0,
+                    second=0,
+                    microsecond=0
+                )
+                return base_datetime + timedelta(minutes=minutes_offset)
+            else:
+                # For other extensions, use 2-minute spacing
+                if time_extension == 'm':
+                    base_time = self.MORNING_START
+                elif time_extension == 'a':
+                    base_time = self.AFTERNOON_START
+                elif time_extension == 'e':
+                    base_time = self.EVENING_START
+                    
+                base_datetime = queue_date.replace(
+                    hour=(base_time - hour_adjustment) % 24,
+                    minute=0,
+                    second=0,
+                    microsecond=0
+                )
+                return base_datetime + timedelta(minutes=file_index * 2)
+                
+        except Exception as e:
+            logger.error(f"Error calculating schedule time: {str(e)}")
+            return None
 
     async def build_daily_queue(self, queue_date: datetime = None, client_filter: dict = None) -> Dict:
         """
@@ -151,11 +239,15 @@ class QueueBuilder:
             count = await self.uploads.count_documents({})
             logger.info(f"Total documents in uploads collection: {count}")
             
-            async for doc in self.uploads.find({}):
-                logger.info(f"Found upload doc:")
+            # Debug: Print all documents for this client
+            logger.info(f"\n=== CHECKING UPLOADS FOR CLIENT ===")
+            async for doc in self.uploads.find(query):
+                logger.info(f"Found document:")
                 logger.info(f"  Client ID: {doc.get('client_ID')}")
                 logger.info(f"  Sessions: {[s.get('session_id') for s in doc.get('sessions', [])]}")
+                logger.info(f"  Session dates: {[s.get('scan_date') for s in doc.get('sessions', [])]}")
                 logger.info(f"  Already queued?: {[s.get('queued', False) for s in doc.get('sessions', [])]}")
+                logger.info(f"  Files count: {sum(len(s.get('files', [])) for s in doc.get('sessions', []))}")
             
             daily_queue = {
                 "queue_date": queue_date.date().isoformat(),
@@ -165,14 +257,10 @@ class QueueBuilder:
                 "total_posts": 0
             }
             
-            # Use client filter if provided
-            query = client_filter if client_filter else {}
-            logger.info(f"Using query filter: {query}")
-            
             # Find eligible content
             async for doc in self.uploads.find(query):
                 client_id = doc.get('client_ID')
-                logger.info(f"Found document for client: {client_id}")
+                logger.info(f"\nProcessing document for client: {client_id}")
                 logger.info(f"Number of sessions: {len(doc.get('sessions', []))}")
                 logger.info(f"Sessions: {[s.get('session_id') for s in doc.get('sessions', [])]}")
                 
@@ -220,13 +308,6 @@ class QueueBuilder:
             client_id = client['client_ID']
             client_timezone = client.get('timezone')
             
-            # Check document-level approval
-            doc_approval = client.get('approved')
-            if doc_approval is True:
-                logger.info(f"Client {client_id} is approved at document level - will check session approvals")
-            else:
-                logger.info(f"Client {client_id} has no document level approval or is not approved - processing all sessions")
-            
             # Debug timezone adjustment
             hour_adjustment = self.timezone_adjustments.get(client_timezone, 0)
             logger.info(f"\n=== TIMEZONE DEBUG for {client_id} ===")
@@ -235,8 +316,9 @@ class QueueBuilder:
             
             # Store original date for session matching
             target_date = queue_date.date()
+            logger.info(f"Target date for matching: {target_date}")
 
-            # Create time blocks with detailed logging
+            # Create time blocks for legacy scheduling (no time extension)
             time_blocks = []
             for base_time in [self.MORNING_POST_TIME, self.AFTERNOON_POST_TIME, self.EVENING_POST_TIME]:
                 logger.info(f"\nProcessing base time: {base_time}:00 UTC")
@@ -258,43 +340,42 @@ class QueueBuilder:
             # Log the sessions we're checking
             for session in client['sessions']:
                 session_id = session.get('session_id', '')
-                logger.info(f"Checking session: {session_id}")
+                logger.info(f"\nChecking session: {session_id}")
                 
                 if not session_id:
                     continue
 
-                # If document is approved, sessions must be explicitly approved
-                if doc_approval is True:
-                    session_approval = session.get('approved')
-                    if not session_approval:  # This will catch both None and False
-                        logger.info(f"Session {session_id} is not explicitly approved - skipping")
-                        continue
-                    logger.info(f"Session {session_id} is approved - will process")
-                else:
-                    logger.info(f"No document level approval required - processing session {session_id}")
-                    
                 # Fix date parsing to handle both formats
                 try:
-                    date_str = session_id[3:].split(')')[0]  # Skip "F(" to get just "01-28-2025"
+                    # Extract date from session_id: F(06-21-2025)_th10021994
+                    date_str = session_id[2:].split(')')[0].strip('(')  # Get just "06-21-2025"
+                    logger.info(f"Processing date string: {date_str} for target date: {target_date}")
+                    
+                    # Try mm-dd-yyyy format first
                     try:
-                        # Try mm-dd-yyyy format first
                         session_date = datetime.strptime(date_str, '%m-%d-%Y')
                     except ValueError:
                         # If that fails, try Month d, yyyy format
                         session_date = datetime.strptime(date_str, '%b %d, %Y')
                     
-                    logger.info(f"Session {session_id} date: {session_date.date()}")
-                    logger.info(f"Is queued?: {session.get('queued', False)}")
+                    # Convert both dates to string format for comparison
+                    session_date_str = session_date.strftime('%Y-%m-%d')
+                    target_date_str = target_date.strftime('%Y-%m-%d')
                     
-                    if session_date.date() == target_date:  # Compare against original date
+                    logger.info(f"Comparing dates - Session: {session_date_str}, Target: {target_date_str}")
+                    
+                    if session_date_str == target_date_str:
                         logger.info("Date matches!")
                         if not session.get('queued'):
                             logger.info("Session not queued - adding to eligible sessions")
                             eligible_sessions.append(session)
                         else:
                             logger.info("Session already queued - skipping")
-                except ValueError as e:
-                    logger.error(f"Error parsing date from session_id {session_id}: {str(e)}")
+                    else:
+                        logger.info(f"Date mismatch - session date {session_date_str} != target date {target_date_str}")
+                        
+                except Exception as e:
+                    logger.error(f"Error processing session {session_id}: {str(e)}")
                     continue
 
             if not eligible_sessions:
@@ -309,99 +390,112 @@ class QueueBuilder:
             logger.info(f"Using snap_ID: {snap_id}")
 
             scheduled_stories = []
-            current_files = []
-            current_block = 0
-
-            # Process all files from eligible sessions
+            
+            # Group files by time extension
             for session in eligible_sessions:
                 sorted_files = sorted(session['files'], key=lambda x: x['file_name'])
                 
-                # Check if there are any thumbnails
-                has_thumbnails = any(f.get('is_thumbnail') for f in sorted_files)
-                
-                if has_thumbnails:
-                    # Process files with thumbnail breaks
-                    for f in sorted_files:
-                        file_data = {
-                            "file_name": f['file_name'],
-                            "cdn_url": f['CDN_link'],
-                            "file_type": f['file_type'],
-                            "snap_id": snap_id,
-                            "timezone": client.get('timezone', 'America/New_York'),
-                            "snapchat_publish_as": session.get('content_type', 'STORY'),
-                            "session_id": session['session_id'],
-                            "is_thumbnail": f.get('is_thumbnail', False)
-                        }
+                # Group files by time extension
+                extension_groups = {}
+                for f in sorted_files:
+                    if f.get('is_thumbnail', False):
+                        continue  # Handle thumbnails separately
                         
-                        if file_data['is_thumbnail']:
-                            # Schedule current files
-                            if current_files:
-                                base_time = time_blocks[current_block]
-                                for i, cf in enumerate(current_files):
-                                    scheduled_time = base_time + timedelta(minutes=i*2)
-                                    scheduled_stories.append({
-                                        **cf,
-                                        "scheduled_time": scheduled_time.isoformat()
-                                    })
-                                # Add thumbnail 2 minutes after last file
-                                thumbnail_time = base_time + timedelta(minutes=len(current_files)*2)
+                    time_ext = self._get_time_extension(f['file_name'])
+                    if time_ext not in extension_groups:
+                        extension_groups[time_ext] = []
+                    extension_groups[time_ext].append(f)
+                
+                # Schedule files based on their time extension
+                for ext, files in extension_groups.items():
+                    if ext is None:
+                        # Handle legacy scheduling (no time extension)
+                        total_files = len(files)
+                        files_per_block = total_files // 3
+                        extra_files = total_files % 3
+                        
+                        for i, f in enumerate(files):
+                            # Determine which block this file belongs to
+                            if i < files_per_block + (1 if extra_files > 0 else 0):
+                                block = 0
+                            elif i < (files_per_block * 2) + (2 if extra_files > 1 else 1 if extra_files > 0 else 0):
+                                block = 1
+                            else:
+                                block = 2
+                                
+                            file_data = {
+                                "file_name": f['file_name'],
+                                "cdn_url": f['CDN_link'],
+                                "file_type": f['file_type'],
+                                "snap_id": snap_id,
+                                "timezone": client.get('timezone', 'America/New_York'),
+                                "snapchat_publish_as": session.get('content_type', 'STORY'),
+                                "session_id": session['session_id']
+                            }
+                            
+                            base_time = time_blocks[block]
+                            if block == 0:
+                                position = i
+                            elif block == 1:
+                                position = i - (files_per_block + (1 if extra_files > 0 else 0))
+                            else:
+                                position = i - (files_per_block * 2 + (2 if extra_files > 1 else 1 if extra_files > 0 else 0))
+                                
+                            scheduled_time = base_time + timedelta(minutes=position*2)
+                            scheduled_stories.append({
+                                **file_data,
+                                "scheduled_time": scheduled_time.isoformat()
+                            })
+                    else:
+                        # Handle new time extension scheduling
+                        for i, f in enumerate(files):
+                            file_data = {
+                                "file_name": f['file_name'],
+                                "cdn_url": f['CDN_link'],
+                                "file_type": f['file_type'],
+                                "snap_id": snap_id,
+                                "timezone": client.get('timezone', 'America/New_York'),
+                                "snapchat_publish_as": session.get('content_type', 'STORY'),
+                                "session_id": session['session_id']
+                            }
+                            
+                            scheduled_time = self._calculate_schedule_time(
+                                base_time=0,  # Not used for new scheduling
+                                file_index=i,
+                                total_files=len(files),
+                                time_extension=ext,
+                                queue_date=queue_date,
+                                hour_adjustment=hour_adjustment
+                            )
+                            
+                            if scheduled_time:
                                 scheduled_stories.append({
                                     **file_data,
-                                    "scheduled_time": thumbnail_time.isoformat()
+                                    "scheduled_time": scheduled_time.isoformat()
                                 })
-                                current_files = []
-                                current_block = min(current_block + 1, 2)
-                        else:
-                            current_files.append(file_data)
-                else:
-                    # Split files equally between time blocks
-                    total_files = len(sorted_files)
-                    files_per_block = total_files // 3
-                    extra_files = total_files % 3
+                
+                # Handle thumbnails
+                thumbnails = [f for f in sorted_files if f.get('is_thumbnail', False)]
+                for thumbnail in thumbnails:
+                    # Find the original file this thumbnail belongs to
+                    original_name = thumbnail['file_name'].replace('-t', '')
+                    original_stories = [s for s in scheduled_stories if s['file_name'] == original_name]
                     
-                    for i, f in enumerate(sorted_files):
-                        # Determine which block this file belongs to
-                        if i < files_per_block + (1 if extra_files > 0 else 0):
-                            block = 0
-                        elif i < (files_per_block * 2) + (2 if extra_files > 1 else 1 if extra_files > 0 else 0):
-                            block = 1
-                        else:
-                            block = 2
-                            
-                        file_data = {
-                            "file_name": f['file_name'],
-                            "cdn_url": f['CDN_link'],
-                            "file_type": f['file_type'],
+                    if original_stories:
+                        original_time = datetime.fromisoformat(original_stories[0]['scheduled_time'])
+                        thumbnail_time = original_time + timedelta(minutes=2)
+                        
+                        scheduled_stories.append({
+                            "file_name": thumbnail['file_name'],
+                            "cdn_url": thumbnail['CDN_link'],
+                            "file_type": thumbnail['file_type'],
                             "snap_id": snap_id,
                             "timezone": client.get('timezone', 'America/New_York'),
                             "snapchat_publish_as": session.get('content_type', 'STORY'),
                             "session_id": session['session_id'],
-                            "is_thumbnail": f.get('is_thumbnail', False)
-                        }
-                        
-                        base_time = time_blocks[block]
-                        if block == 0:
-                            position = i
-                        elif block == 1:
-                            position = i - (files_per_block + (1 if extra_files > 0 else 0))
-                        else:
-                            position = i - (files_per_block * 2 + (2 if extra_files > 1 else 1 if extra_files > 0 else 0))
-                            
-                        scheduled_time = base_time + timedelta(minutes=position*2)
-                        scheduled_stories.append({
-                            **file_data,
-                            "scheduled_time": scheduled_time.isoformat()
+                            "is_thumbnail": True,
+                            "scheduled_time": thumbnail_time.isoformat()
                         })
-
-            # Handle any remaining files from thumbnail processing
-            if current_files:
-                base_time = time_blocks[current_block]
-                for i, f in enumerate(current_files):
-                    scheduled_time = base_time + timedelta(minutes=i*2)
-                    scheduled_stories.append({
-                        **f,
-                        "scheduled_time": scheduled_time.isoformat()
-                    })
 
             if not scheduled_stories:
                 logger.info(f"No stories scheduled for client {client_id}")
@@ -474,8 +568,6 @@ async def build_queue(queue_date: datetime = None):
 
 router = APIRouter(prefix="/queue", tags=["queue"])
 
-
-
 @router.post("/build")
 async def build_queue_endpoint(client_id: str = None):
     try:
@@ -492,7 +584,56 @@ async def build_queue_endpoint(client_id: str = None):
     except Exception as e:
         logger.error(f"Error building queue: {str(e)}")
         raise
+
+@router.post("/build_test_queues")
+async def build_test_queues_endpoint(test_client_id: str, days: int = 5):
+    """
+    Build queues for multiple days for a test account
     
+    Args:
+        test_client_id (str): Test account client ID
+        days (int): Number of days to build queues for (default 5)
+        
+    Returns:
+        Dict: Results for each day's queue build
+    """
+    try:
+        builder = QueueBuilder()
+        results = []
+        
+        # Build queues for specified number of days
+        for day_offset in range(days):
+            queue_date = datetime.now(timezone.utc) + timedelta(days=day_offset)
+            logger.info(f"Building queue for date: {queue_date.date()} for test client: {test_client_id}")
+            
+            result = await builder.build_daily_queue(
+                queue_date=queue_date,
+                client_filter={"client_ID": test_client_id}
+            )
+            
+            if result:
+                results.append({
+                    "date": queue_date.date().isoformat(),
+                    "total_posts": result['total_posts'],
+                    "status": "success"
+                })
+            else:
+                results.append({
+                    "date": queue_date.date().isoformat(),
+                    "total_posts": 0,
+                    "status": "no_posts"
+                })
+        
+        return {
+            "status": "success",
+            "test_client_id": test_client_id,
+            "days_processed": days,
+            "results": results
+        }
+        
+    except Exception as e:
+        logger.error(f"Error building test queues: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import asyncio

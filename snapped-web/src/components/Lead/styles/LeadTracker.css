@@ -959,12 +959,30 @@
   z-index: 9999;
 }
 
+.partners-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999999;
+  backdrop-filter: blur(5px);
+  isolation: isolate;
+}
+
 .partners-modal {
   background: white;
   padding: 24px;
   border-radius: 8px;
   min-width: 400px;
   max-width: 90vw;
+  position: relative;
+  z-index: 10000000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .partners-modal h2 {
@@ -972,12 +990,36 @@
   font-size: 20px;
   font-weight: 600;
   color: #374151;
+  position: relative;
+  z-index: 10000001;
+}
+
+.partners-modal .close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  z-index: 10000002;
+  transition: all 0.2s;
+}
+
+.partners-modal .close-button:hover {
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .partners-modal .add-partner-form {
   display: flex;
   gap: 8px;
   margin-bottom: 20px;
+  position: relative;
+  z-index: 10000001;
 }
 
 .partners-modal input[type="text"] {
@@ -1013,6 +1055,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  z-index: 10000001;
 }
 
 .partner-item {
@@ -1064,24 +1108,6 @@
 
 .partner-actions .delete-button:hover {
   background: rgba(220, 38, 38, 0.1);
-}
-
-.close-button {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 8px;
-  background: transparent;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #6b7280;
-  transition: all 0.2s;
-}
-
-.close-button:hover {
-  background: #f3f4f6;
-  color: #374151;
 }
 
 .notes-modal-overlay {

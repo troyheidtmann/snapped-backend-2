@@ -227,14 +227,41 @@ const EditModal = ({ isOpen, onClose, data, onSave, partners }) => {
    * @param {Employee} employee - Employee to assign
    * @returns {void}
    */
-  const handleAssignEmployee = (employee) => {
-    setAssignedEmployees(prev => [...prev, employee]);
-    setFormData(prev => ({
-      ...prev,
-      assigned_employees: [...(prev.assigned_employees || []), employee.user_id]
-    }));
-    setEmployeeSearch('');
-    setMatchingEmployees([]);
+  const handleAssignEmployee = async (employee) => {
+    try {
+      const { tokens } = await fetchAuthSession();
+      
+      // First save the assignment to the server
+      const response = await axios.post(
+        API_ENDPOINTS.EMPLOYEES.ASSIGN,
+        {
+          client_id: formData.client_id,
+          user_id: employee.user_id
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${tokens.accessToken.toString()}`
+          }
+        }
+      );
+
+      if (response.data.status === 'success') {
+        // Only update local state if server save was successful
+        setAssignedEmployees(prev => [...prev, employee]);
+        setFormData(prev => ({
+          ...prev,
+          assigned_employees: [...(prev.assigned_employees || []), employee.user_id]
+        }));
+        setEmployeeSearch('');
+        setMatchingEmployees([]);
+        toast.success(`Successfully assigned ${employee.first_name} ${employee.last_name}`);
+      } else {
+        toast.error('Failed to assign employee');
+      }
+    } catch (error) {
+      console.error('Error assigning employee:', error);
+      toast.error('Failed to assign employee');
+    }
   };
 
   /**
@@ -242,12 +269,39 @@ const EditModal = ({ isOpen, onClose, data, onSave, partners }) => {
    * @param {string} userId - ID of the employee to remove
    * @returns {void}
    */
-  const handleRemoveEmployee = (userId) => {
-    setAssignedEmployees(prev => prev.filter(emp => emp.user_id !== userId));
-    setFormData(prev => ({
-      ...prev,
-      assigned_employees: prev.assigned_employees.filter(id => id !== userId)
-    }));
+  const handleRemoveEmployee = async (userId) => {
+    try {
+      const { tokens } = await fetchAuthSession();
+      
+      // First remove the assignment on the server
+      const response = await axios.delete(
+        API_ENDPOINTS.EMPLOYEES.UNASSIGN,
+        {
+          data: {
+            client_id: formData.client_id,
+            user_id: userId
+          },
+          headers: {
+            'Authorization': `Bearer ${tokens.accessToken.toString()}`
+          }
+        }
+      );
+
+      if (response.data.status === 'success') {
+        // Only update local state if server removal was successful
+        setAssignedEmployees(prev => prev.filter(emp => emp.user_id !== userId));
+        setFormData(prev => ({
+          ...prev,
+          assigned_employees: prev.assigned_employees.filter(id => id !== userId)
+        }));
+        toast.success('Successfully removed employee assignment');
+      } else {
+        toast.error('Failed to remove employee assignment');
+      }
+    } catch (error) {
+      console.error('Error removing employee assignment:', error);
+      toast.error('Failed to remove employee assignment');
+    }
   };
 
   useEffect(() => {

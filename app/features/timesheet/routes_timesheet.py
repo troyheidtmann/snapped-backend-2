@@ -50,6 +50,12 @@ from pydantic import ValidationError
 from bson import ObjectId
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from app.shared.database import async_client
+from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+from app.features.tasks.routes_tasks import get_current_user_group
+from app.shared.auth import filter_by_partner
 
 router = APIRouter(
     prefix="/timesheet",
@@ -450,12 +456,18 @@ async def submit_invoice(auth_data: dict = Depends(get_current_user_group)):
                 )
                 total_amount += entry["earnings"]
 
+        # Join description lines and truncate to 3200 characters if needed
+        full_description = "\n".join(description_lines)
+        if len(full_description) > 3200:
+            logger.warning(f"Description length ({len(full_description)}) exceeds 3200 characters, truncating...")
+            full_description = full_description[:3197] + "..."
+
         # Format data for Make webhook
         make_data = {
             "data": {
                 "vendor_id": int(qb_id),
                 "amount": float(total_amount),
-                "description": "\n".join(description_lines),
+                "description": full_description,
                 "date": str(active_invoice["start_date"]),
                 "item_id": "1010000001",  # Updated QuickBooks item ID
                 "account": "Professional Services"
@@ -514,6 +526,7 @@ async def search_assignees(
         - Formats results
         - Limits results
         - Includes metadata
+        - Applies client access restrictions
     """
     try:
         logger.info(f"Searching assignees with query: {query}")
@@ -528,11 +541,16 @@ async def search_assignees(
             ]
         }
         
+        # Apply client access filter
+        filter_query = await filter_by_partner(auth_data)
+        if filter_query:  # If not admin (empty filter = admin)
+            client_query = {"$and": [client_query, filter_query]}
+        
         # Use the correct collection
         clients_cursor = clients_collection.find(client_query)
         clients = await clients_cursor.to_list(length=100)  # Limit to 100 results
         
-        logger.info(f"Found {len(clients)} matching clients")
+        logger.info(f"Found {len(clients)} matching clients (after filtering)")
 
         # Format client results with correct field names
         results = [

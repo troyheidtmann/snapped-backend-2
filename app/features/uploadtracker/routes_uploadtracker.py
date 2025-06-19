@@ -236,8 +236,20 @@ async def get_upload_activity(user_groups: List[str] = Depends(get_current_user_
                     "session_data": {
                         "$push": {
                             "session_id": "$sessions.session_id",
+                            "folder_id": "$sessions.folder_id",
                             "all_video_length": "$sessions.all_video_length",
-                            "approved": "$sessions.approved"
+                            "approved": "$sessions.approved",
+                            "files": {
+                                "$map": {
+                                    "input": "$sessions.files",
+                                    "as": "file",
+                                    "in": {
+                                        "file_name": "$$file.file_name",
+                                        "content_matches": "$$file.content_matches",
+                                        "content_matches_status": "$$file.content_matches_status"
+                                    }
+                                }
+                            }
                         }
                     }
                 }

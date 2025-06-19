@@ -144,46 +144,15 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
   useEffect(() => {
     if (!selectedFile) return;
     
-    // Check if the file has a video summary directly
+    // Only display existing video summaries
     if (selectedFile.video_summary) {
       console.log('Found video summary in file:', selectedFile.video_summary);
       setVideoSummary(selectedFile.video_summary);
-      return;
+    } else {
+      console.log('No video summary available');
+      setVideoSummary(null);
     }
-    
-    // If no direct summary, try to fetch it
-    const fetchVideoSummary = async () => {
-      try {
-        const sessionId = getSessionFolder();
-        console.log('Fetching video summary for:', {
-          clientId: media.client_ID,
-          sessionId,
-          fileName: selectedFile.file_name
-        });
-        
-        const response = await axios.get(
-          API_ENDPOINTS.UPLOAD.VIDEO_SUMMARY(
-            media.client_ID,
-            sessionId,
-            selectedFile.file_name
-          )
-        );
-        
-        if (response.data?.video_summary) {
-          console.log('Video summary received:', response.data.video_summary);
-          setVideoSummary(response.data.video_summary);
-        } else {
-          console.log('No video summary found');
-          setVideoSummary(null);
-        }
-      } catch (err) {
-        console.error('Error fetching video summary:', err);
-        setVideoSummary(null);
-      }
-    };
-
-    fetchVideoSummary();
-  }, [selectedFile, media]);
+  }, [selectedFile]);
 
   // Add this useEffect to get current user info
   useEffect(() => {
@@ -238,52 +207,64 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
   };
 
   /**
-   * Gets the current session folder path.
+   * Gets the session ID from CDN link or media data.
    * 
-   * @function getSessionFolder
-   * @returns {string} Session folder path
+   * @function getSessionId
+   * @returns {string} Session ID
    */
-  const getSessionFolder = () => {
-    // First try to get from sessions array
-    if (media?.sessions?.[0]?.session_id) {
-      console.log('Using session_id:', media.sessions[0].session_id);
-      return media.sessions[0].session_id;
-    }
+  const getSessionId = () => {
+    try {
+      // Get the first file's CDN link
+      const firstFile = media.files[0];
+      if (!firstFile?.CDN_link) {
+        return null;
+      }
 
-    if (media?.sessions?.[0]?.folder_id) {
-      console.log('Using folder_id:', media.sessions[0].folder_id);
-      return media.sessions[0].folder_id;
-    }
+      // Extract the date folder from the CDN link
+      // Example: https://c.snapped.cc/public/th10021994/STO/062225/file.mp4
+      const match = firstFile.CDN_link.match(/\/STO\/(\d{6})\//);
+      if (!match) {
+        return null;
+      }
 
-    // If no session info, try to extract from CDN link
+      // Return the date folder (MMDDYY)
+      return match[1];
+    } catch (err) {
+      console.error('Error getting session ID:', err);
+      return null;
+    }
+  };
+
+  /**
+   * Gets the S3 folder path from CDN link.
+   * 
+   * @function getS3FolderPath
+   * @returns {string} S3 folder path
+   */
+  const getS3FolderPath = () => {
     if (selectedFile?.CDN_link) {
-      // Example CDN link: https://c.snapped.cc/public/ej04141993/STO/042125/0011-0415-1609.JPG
       const parts = selectedFile.CDN_link.split('/');
-      const clientId = parts[4]; // ej04141993
-      const dateFolder = parts[6]; // 042125
-      
-      if (clientId && dateFolder) {
-        // Convert date from MMDDYY to MM-DD-YYYY
-        const month = dateFolder.substring(0, 2);
-        const day = dateFolder.substring(2, 4);
-        const year = '20' + dateFolder.substring(4, 6);
-        
-        const sessionFolder = `F(${month}-${day}-${year})_${clientId}`;
-        console.log('Constructed session folder from CDN link:', sessionFolder);
-        return sessionFolder;
+      const dateFolder = parts[6]; // This should be in MMDDYY format
+      if (dateFolder) {
+        return dateFolder;
       }
     }
+    return null;
+  };
 
-    // If we have client_ID and date, construct the session folder
+  /**
+   * Gets the MongoDB session folder path.
+   * 
+   * @function getMongoFolderPath
+   * @returns {string} MongoDB folder path
+   */
+  const getMongoFolderPath = () => {
     if (media?.client_ID && media?.date) {
-      // Convert YYYY-MM-DD to MM-DD-YYYY
       const [year, month, day] = media.date.split('-');
-      const sessionFolder = `F(${month}-${day}-${year})_${media.client_ID}`;
-      console.log('Constructed session folder from media data:', sessionFolder);
-      return sessionFolder;
+      const paddedMonth = month.padStart(2, '0');
+      const paddedDay = day.padStart(2, '0');
+      return `${media.client_ID}/STORIES/F(${paddedMonth}-${paddedDay}-${year})_${media.client_ID}`;
     }
-
-    console.error('Could not determine session folder from available data');
     return null;
   };
 
@@ -296,11 +277,11 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
    */
   const handleSaveNote = async () => {
     try {
-      const sessionFolder = getSessionFolder();
+      const folderId = getSessionId();
       
       const noteData = {
         client_ID: media.client_ID,
-        session_folder: sessionFolder,
+        session_folder: folderId,
         file_data: {
           file_name: selectedFile.file_name,
           cdn_url: selectedFile.CDN_link,
@@ -337,7 +318,7 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
    */
   const handleSessionNoteSend = async () => {
     try {
-      const sessionFolder = getSessionFolder();
+      const folderId = getSessionId();
       
       // Include CDN links when mapping files
       const sessionFiles = media.files.map(file => ({
@@ -347,7 +328,7 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
       
       const noteData = {
         client_ID: media.client_ID,
-        session_folder: sessionFolder,
+        session_folder: folderId,
         file_data: {
           file_name: null,
           note: sessionNoteText,
@@ -385,31 +366,31 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
    */
   const handleDeleteNote = async (note) => {
     try {
-        const sessionFolder = getSessionFolder();
-        
-        // Log the delete attempt
-        console.log('Attempting to delete note:', {
-            sessionFolder,
-            note
-        });
+      const folderId = getSessionId();
+      
+      // Log the delete attempt
+      console.log('Attempting to delete note:', {
+        folderId,
+        note
+      });
 
-        const response = await axios.delete(
-            `${API_ENDPOINTS.UPLOAD.CONTENT_NOTES}/delete-note/${media.client_ID}/${sessionFolder}`,
-            {
-                data: {
-                    created_at: note.created_at,
-                    note: note.note
-                }
-            }
-        );
-        
-        if (response.data.status === 'success') {
-            fetchNotes();  // Refresh notes list
-            toast.success('Note deleted successfully');
+      const response = await axios.delete(
+        `${API_ENDPOINTS.UPLOAD.CONTENT_NOTES}/delete-note/${media.client_ID}/${folderId}`,
+        {
+          data: {
+            created_at: note.created_at,
+            note: note.note
+          }
         }
+      );
+      
+      if (response.data.status === 'success') {
+        fetchNotes();  // Refresh notes list
+        toast.success('Note deleted successfully');
+      }
     } catch (err) {
-        console.error('Error deleting note:', err);
-        toast.error('Failed to delete note');
+      console.error('Error deleting note:', err);
+      toast.error('Failed to delete note');
     }
   };
 
@@ -423,7 +404,7 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
   const handleApprove = async () => {
     try {
       // Get the correct session folder ID that matches the database format
-      const sessionFolder = getSessionFolder();
+      const sessionFolder = getSessionId();
       
       // Get the custom:UserID attribute for approver
       let approverID = "unknown";
@@ -495,7 +476,7 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
    */
   const handleEditorNoteSave = async () => {
     try {
-      const sessionFolder = getSessionFolder();
+      const sessionFolder = getSessionId();
       
       const noteData = {
         client_ID: media.client_ID,
@@ -601,54 +582,31 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
    */
   const handleDelete = async () => {
     try {
-      const sessionFolder = getSessionFolder();
-      const token = await getAccessToken();
+      const { tokens } = await fetchAuthSession();
+      const token = tokens.idToken.toString();
+
+      // We already have the folder_id from when we loaded the data
+      const deleteUrl = API_ENDPOINTS.UPLOAD.DELETE_CONTENT(media.client_ID, media.folder_id);
       
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      // Log the deletion attempt
-      console.log('Attempting to delete content:', {
-        clientId: media.client_ID,
-        sessionFolder,
-        files: media.files
-      });
-
-      // Delete from AWS and MongoDB
       const response = await axios.delete(
-        API_ENDPOINTS.UPLOAD.DELETE_CONTENT(media.client_ID, sessionFolder),
+        deleteUrl,
         {
           headers: {
             Authorization: `Bearer ${token}`
           }
         }
-      );
+      );G
 
       console.log('Delete response:', response.data);
-
-      // Check for partial success
-      if (response.data.status === 'success') {
-        // Even if S3 deletion failed, MongoDB cleanup succeeded
-        if (response.data.s3_errors && response.data.s3_errors.length > 0) {
-          toast.success('Content records deleted, but some S3 files could not be removed');
-        } else {
-          toast.success('Content deleted successfully');
-        }
-        
-        onClose(); // Close the modal
-        // Notify parent component to refresh its data
-        if (onContentDeleted) {
-          onContentDeleted();
-        }
-      } else {
-        // If status is not success, treat as error
-        throw new Error(response.data.message || 'Failed to delete content');
+      toast.success('Content deleted successfully');
+      onClose();
+      if (onContentDeleted) {
+        onContentDeleted();
       }
+
     } catch (err) {
       console.error('Error deleting content:', err);
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete content';
-      toast.error(errorMessage);
+      toast.error('Failed to delete content');
     }
   };
 
@@ -697,10 +655,10 @@ const MediaModal = ({ media, onClose, onContentDeleted }) => {
    */
   const fetchNotes = async () => {
     try {
-      const sessionFolder = getSessionFolder();
+      const folderId = getSessionId();
       
       const response = await axios.get(
-        `${API_ENDPOINTS.UPLOAD.CONTENT_NOTES}/get/${media.client_ID}/${sessionFolder}`
+        `${API_ENDPOINTS.UPLOAD.CONTENT_NOTES}/get/${media.client_ID}/${folderId}`
       );
       
       if (response.data && response.data.notes) {

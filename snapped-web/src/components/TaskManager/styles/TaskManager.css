@@ -1,1 +1,74 @@
- 
+.task-manager {
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.task-manager__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.task-manager__header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.task-manager__add-button {
+  padding: 8px 16px;
+  background-color: #38A169;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.task-manager__add-button:hover {
+  background-color: #2F855A;
+}
+
+.task-manager__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 1px;
+}
+
+.task-manager__tabs .tab {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  color: #4A5568;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.task-manager__tabs .tab:hover {
+  color: #2B6CB0;
+}
+
+.task-manager__tabs .tab.active {
+  color: #2B6CB0;
+}
+
+.task-manager__tabs .tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2B6CB0;
+  border-radius: 2px 2px 0 0;
+} 

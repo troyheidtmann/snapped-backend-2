@@ -1,0 +1,16 @@
+# Testing Dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-xdist==3.3.1  # For parallel test execution
+coverage==7.3.2
+pytest-html==4.1.1  # For HTML test reports
+pytest-timeout==2.2.0  # For test timeouts
+pytest-mock==3.12.0
+pytest-env==1.0.1
+httpx==0.25.1  # For async HTTP testing
+aiohttp==3.9.1
+motor==3.3.1  # For async MongoDB testing
+fakeredis==2.20.0  # For mocking Redis
+beautifulsoup4==4.12.2  # For parsing HTML responses
+freezegun==1.2.2  # For time-based testing 

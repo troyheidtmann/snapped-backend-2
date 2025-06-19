@@ -341,3 +341,48 @@ async def chat_endpoint(request: ChatRequest):
     except Exception as e:
         print(f"Chat endpoint error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/chat/history/{client_id}")
+async def get_chat_history(
+    client_id: str,
+    auth_data: dict = Depends(get_current_user_group)
+):
+    """
+    Endpoint to retrieve chat history for a client.
+    
+    Args:
+        client_id: Client identifier for conversation lookup
+        auth_data: Authentication data from dependency
+        
+    Returns:
+        JSON response containing chat history messages
+    """
+    try:
+        # Get conversation history
+        history = await get_conversation_history(client_id)
+        
+        # Format messages with proper timestamps
+        formatted_history = []
+        for msg in history:
+            # Convert string timestamps back to datetime if needed
+            timestamp = msg.get('timestamp')
+            if isinstance(timestamp, str):
+                try:
+                    timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                except:
+                    timestamp = datetime.utcnow()
+                    
+            formatted_history.append({
+                "role": msg.get('role'),
+                "content": msg.get('content'),
+                "timestamp": timestamp
+            })
+            
+        return {
+            "status": "success",
+            "messages": formatted_history
+        }
+        
+    except Exception as e:
+        print(f"Error fetching chat history: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -29,6 +29,7 @@ import AdminSurvey from '../survey/AdminDashboard';
 import EmployeeDashboard from '../Employee/EmployeeDashboard';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
+import TaskTemplate from '../TaskTemplate/TaskTemplate';
 
 // Define base URL directly to ensure it's available
 const API_BASE_URL = 'https://track.snapped.cc';
@@ -875,12 +876,24 @@ const LeadTracker = () => {
 
   const handleDelete = async (leadId) => {
     try {
-      await axios.delete(`/api/leads/${leadId}`);
-      setRowData(prevData => prevData.filter(row => row.id !== leadId));
+      const response = await axios.delete(`${API_BASE_URL}/api/leads/${leadId}`);
+      
+      if (response.data.status === 'success') {
+        // Remove the lead from the grid data
+        setRowData(prevData => prevData.filter(row => row.client_id !== leadId));
+        toast.success('Lead deleted successfully');
+      } else {
+        toast.error('Failed to delete lead');
+      }
+      
+      // Close the confirmation modal
       setShowDeleteConfirm(false);
       setLeadToDelete(null);
     } catch (error) {
       console.error('Error deleting lead:', error);
+      toast.error(error.response?.data?.message || 'Error deleting lead');
+      setShowDeleteConfirm(false);
+      setLeadToDelete(null);
     }
   };
 
@@ -915,7 +928,10 @@ const LeadTracker = () => {
     console.log('Opening contract for client:', clientData); // Debug log
     setSelectedContractClient({
       ...clientData,
-      _id: clientData._id || clientData.id // Make sure we have the ID
+      id: clientData._id || clientData.id || clientData.client_id, // Handle all possible ID fields
+      name: `${clientData.First_Legal_Name || ''} ${clientData.Last_Legal_Name || ''}`.trim(),
+      email: clientData.Email_Address,
+      // Add any other required fields for the contract
     });
     setContractModalOpen(true);
   };
@@ -1391,8 +1407,8 @@ const LeadTracker = () => {
         return <UploadTracker />;
       case 'ANALYTICS':
         return <AnalyticsDashboard />;
-      case 'EMPLOYEES':
-        return isAdmin ? <EmployeesSheet /> : null;
+      case 'EMPLOYEE_DASHBOARD':
+        return <EmployeeDashboard />;
       case 'PRE_LEADS':
         return isAdmin ? <PreLeadsSheet /> : null;
       case 'ONBOARDING':
@@ -1403,8 +1419,8 @@ const LeadTracker = () => {
         return isAdmin ? <TalentPayoutsSheet /> : null;
       case 'ADMIN_SURVEY':
         return <AdminSurvey />;
-      case 'EMPLOYEE_DASHBOARD':
-        return <EmployeeDashboard />;
+      case 'TASK_TEMPLATES':
+        return <TaskTemplate />;
       default:
         return null;
     }
@@ -1438,8 +1454,12 @@ const LeadTracker = () => {
         setMoreMenuOpen(false);
         setDocsMenuOpen(false);
       }
+      // Only close settings dropdown if not clicking on partners modal
       if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target)) {
-        setSettingsDropdownOpen(false);
+        const partnersModal = document.querySelector('.partners-modal-overlay');
+        if (!partnersModal || !partnersModal.contains(event.target)) {
+          setSettingsDropdownOpen(false);
+        }
       }
     };
 
@@ -1514,10 +1534,16 @@ const LeadTracker = () => {
                 }}>
                   <span>SURVEY</span>
                 </div>
+                <div className="docs-grid-item" onClick={() => {
+                  handleNavClick('TASK_TEMPLATES');
+                  setDocsMenuOpen(false);
+                }}>
+                  <span>TASK TEMPLATES</span>
+                </div>
                 {isAdmin && (
                   <>
                     <div className="docs-grid-item" onClick={() => {
-                      handleNavClick('EMPLOYEES');
+                      handleNavClick('EMPLOYEE_DASHBOARD');
                       setDocsMenuOpen(false);
                     }}>
                       <span>EMPLOYEES</span>
@@ -1584,7 +1610,7 @@ const LeadTracker = () => {
       <ContractModal
         isOpen={contractModalOpen}
         onClose={() => setContractModalOpen(false)}
-        clientData={selectedContractClient}
+        client={selectedContractClient}
       />
       <TikTokDownloadModal
         isOpen={tiktokModalOpen}
